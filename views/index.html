@@ -45,7 +45,7 @@
                 <div class="modal-body">
 
                     <!--Username already taken-->
-                    <div class="alert" >
+                    <div class="alert">
                         <strong>Danger!</strong> Username already taken.
                     </div>
 
@@ -68,17 +68,29 @@
             <ul class="list-group" id="messages"></ul>
             <form id="chatForm" action="">
                 <input id="m" required="required" autocomplete="off"/>
-                <button >Send</button>
+                <button>Send</button>
             </form>
         </div>
 
         <div class="col-2">
+            <!--Other logged in users-->
             <div>Users-Online</div>
-            <span class="glyphicon glyphicon-send"></span>
             <div>
                 <ul class="list-group" id="users"></ul>
             </div>
+
+            <!--File chooser-->
+            <div class="form-group">
+                <label  for="inputFile">File input</label>
+                <input class="btn btn-primary" type="file" class="form-control-file" id="inputFile" aria-describedby="fileHelp">
+                <button class="btn btn-secondary" id="sendFile">Send File</button>
+            </div>
+            
         </div>
+
+
+
+
     </div>
 </div>
 </body>
