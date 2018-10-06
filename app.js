@@ -71,11 +71,6 @@ io.on('connection', (socket) => {
 
     });
 
-    //client demands list of connected users
-    socket.on('user list', (callback) => {
-        callback(allUsernames);
-    });
-
     //Send message only to one specific client
     socket.on('private message', (msg, receiver) => {
         //connectedUsers contains the sockets from each logged in user
@@ -86,15 +81,44 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('file', (file, callback) => {
-        callback();
-        io.emit('file', file);
-        fs.writeFile("mandala.png", file, (err) => {
-            if (err) {
-                throw err;
-            }
-            console.log("The file was saved!");
-        });
+
+    let files = {},
+        struct = {
+            name: null,
+            type: null,
+            size: 0,
+            data: [],
+            slice: 0
+        };
+
+    socket.on('slice upload', (data) => {
+        if (!files[data.name]) {
+            files[data.name] = Object.assign({}, struct, data);
+            files[data.name].data = [];
+        }
+        //convert the ArrayBuffer to Buffer
+        data.data = new Buffer(new Uint8Array(data.data));
+        //save the data
+        files[data.name].data.push(data.data);
+        files[data.name].slice++;
+
+        if (files[data.name].slice * 100000 >= files[data.name].size) {
+            var fileBuffer = Buffer.concat(files[data.name].data);
+
+
+            fs.writeFile(__dirname + '/tmp/' + data.name, fileBuffer, (err) => {
+                delete files[data.name];
+                if (err) {
+                    console.log(err);
+                    return socket.emit('upload error', err);
+                }
+                socket.emit('end upload');
+            });
+        } else {
+            socket.emit('request slice upload', {
+                currentSlice: files[data.name].slice
+            });
+        }
     });
 
 });

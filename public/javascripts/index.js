@@ -1,5 +1,8 @@
 $(() => {
-    var socket = io();
+    let socket = io();
+
+    let fileReader = new FileReader();
+
 
     //Log in with user name
     $('#loginForm').submit(() => {
@@ -24,16 +27,6 @@ $(() => {
         return false;
     });
 
-    //send a file
-    $('#sendFile').click(()=>{
-        let file = $('#inputFile').val();
-        if(file){
-            socket.emit('file', file,()=>{
-                console.log('file successfully uploaded');
-            });
-        }
-    });
-
     //Receiving a message
     socket.on('chat message', (msg) => {
         $('#messages').append($('<li>').text(msg));
@@ -47,9 +40,37 @@ $(() => {
         });
     });
 
-    //Receiving a file
-    socket.on('file',(file)=>{
+    //send a file
+    $('#sendFile').click(() => {
 
+
+        let file = $('#inputFile')[0].files[0];
+
+        let slice = file.slice(0, 100000);
+        fileReader.readAsArrayBuffer(slice);
+        fileReader.onload = (evt) => {
+            let arrayBuffer = fileReader.result;
+            socket.emit('slice upload', {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                data: arrayBuffer
+            });
+        }
+
+        socket.on('request slice upload', (data) => {
+            let place = data.currentSlice * 100000,
+                slice = file.slice(place, place + Math.min(100000, file.size - place));
+            fileReader.readAsArrayBuffer(slice);
+        });
+    });
+
+    socket.on('end upload', () => {
+        console.log('file successful uploaded');
+    });
+
+    socket.on('upload error', (err) => {
+        console.log(err);
     });
 
 });
