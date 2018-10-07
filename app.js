@@ -71,13 +71,23 @@ io.on('connection', (socket) => {
 
     });
 
-    //Send message only to one specific client
+    //Send a message only to one specific client
     socket.on('private message', (msg, receiver) => {
         //connectedUsers contains the sockets from each logged in user
         let receiverSocket = connectedUsers[receiver];
         let user = socket.user;
-        if (receiverSocket && msg) {
-            receiverSocket.emit('chat message', 'PRIVATE MESSAGE ' + user + ': ' + msg + '   |  ' + date.toUTCString());
+        if (receiverSocket && msg && user) {
+            receiverSocket.emit('private message', {
+                receiver: receiver,
+                sender: user,
+                message: msg + '   |  ' + date.toUTCString()
+            });
+            //sender receives same message
+            socket.emit('private message', {
+                receiver: receiver,
+                sender: user,
+                message: msg + '   |  ' + date.toUTCString()
+            });
         }
     });
 

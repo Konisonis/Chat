@@ -63,6 +63,10 @@
 <!--Chat-->
 <div class="container-fluid" id="chat">
 
+    <button id="homeChat" class="btn btn-primary">Home</button>
+    You are chatting as: <span id="yourName"></span>
+    <br>
+    You are chatting with: <span id="chatPartner">Everyone</span>
     <div class="row">
         <div class="col-10">
             <ul class="list-group" id="messages"></ul>
@@ -81,14 +85,13 @@
 
             <!--File chooser-->
             <div class="form-group">
-                <label  for="inputFile">File input</label>
-                <input class="btn btn-primary" type="file" class="form-control-file" id="inputFile" aria-describedby="fileHelp">
+                <label for="inputFile">File input</label>
+                <input class="btn btn-primary" type="file" class="form-control-file" id="inputFile"
+                       aria-describedby="fileHelp">
                 <button class="btn btn-secondary" id="sendFile">Send File</button>
             </div>
-            
+
         </div>
-
-
 
 
     </div>

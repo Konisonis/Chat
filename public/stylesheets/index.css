@@ -81,3 +81,7 @@ body {
     right:0;
     background-color: #f44336;
 }
+
+.userElement{
+    cursor:pointer;
+}
