@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
             allUsernames.forEach((username) => {
                 let userSocket = connectedUsers[username];
                 if (userSocket) {
-                    userSocket.emit('chat message', user + ': ' + msg + '   |  ' + date.toUTCString()); // Only sends message to logged in users not to all
+                    userSocket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: msg}); // Only sends message to logged in users not to all
 
                 }
             });
@@ -61,7 +61,11 @@ io.on('connection', (socket) => {
                 callback(true);
                 connectedUsers[username] = socket;
                 allUsernames.push(username);
-                io.emit('chat message', 'User connected: ' + username);
+                io.emit('chat message', {           //TODO not for everyone!!!
+                    timeStamp: new Date().toUTCString(),
+                    sender: socket.user,
+                    message: 'CONNECTED'
+                });
                 io.emit('user list', allUsernames);
             }
         }
@@ -77,17 +81,15 @@ io.on('connection', (socket) => {
         let receiverSocket = connectedUsers[receiver];
         let user = socket.user;
         if (receiverSocket && msg && user) {
-            receiverSocket.emit('private message', {
+            let data = {
                 receiver: receiver,
                 sender: user,
-                message: msg + '   |  ' + date.toUTCString()
-            });
+                message: msg,
+                timeStamp: new Date().toUTCString()
+            };
+            receiverSocket.emit('private message', data);
             //sender receives same message
-            socket.emit('private message', {
-                receiver: receiver,
-                sender: user,
-                message: msg + '   |  ' + date.toUTCString()
-            });
+            socket.emit('private message', data);
         }
     });
 
@@ -145,7 +147,7 @@ function removeUser(socket) {
     //remove Socket from connectedUsers JSON
     if (connectedUsers[socket.user]) {
         connectedUsers[socket.user] = undefined;
-        io.emit('chat message', socket.user + ' disconnected');
+        io.emit('chat message', {timeStamp: new Date().toUTCString(), sender: socket.user, message: 'DISCONNECTED'});
     }
 }
 

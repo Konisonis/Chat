@@ -70,8 +70,8 @@ $(() => {
 
         if (privateChat) {
             $('#messages').empty();
-            privateChat.forEach((data) => { //data=> {sender,message}
-                $('#messages').append($('<li>').text('data.sender: ' + data.message));
+            privateChat.forEach((messageObj) => { //data=> {sender,message}
+                $('#messages').append($('<li>').text(createMessageFromMessageObj(messageObj)));
             });
         }
     });
@@ -81,16 +81,16 @@ $(() => {
         $('#messages').empty();
         privateChatUser = undefined;
         $('#chatPartner').text('Everyone');
-        homeChat.forEach((message) => {
-            $('#messages').append($('<li>').text(message));
+        homeChat.forEach((messageObject) => {
+            $('#messages').append($('<li>').text(createMessageFromMessageObj(messageObject)));
         });
     });
 
 
     //Receiving a message
-    socket.on('chat message', (msg) => {  //Todo seperate message and user
-        homeChat.push(msg);
-        $('#messages').append($('<li>').text(msg));
+    socket.on('chat message', (messageObj = {timeStamp, sender, message}) => {
+        homeChat.push(messageObj);
+        $('#messages').append($('<li>').text(createMessageFromMessageObj(messageObj)));
     });
 
     //Receiving an updated user list
@@ -106,14 +106,18 @@ $(() => {
     });
 
     //receiving a private message
-    socket.on('private message', (data) => {
-        let sender = data.sender;
-        let receiver = data.receiver;
-        if (userList[sender]) {
-            userList[sender].messages.push(data);
+    socket.on('private message', (messageObj = {timeStamp, sender, receiver, message}) => {
+
+        console.log(messageObj);
+
+        if (userList[messageObj.sender]) {
+            userList[messageObj.sender].messages.push(messageObj);
+        } else if (userList[messageObj.receiver]) {
+            userList[messageObj.receiver].messages.push(messageObj);
         }
-        if (privateChatUser === sender || (privateChatUser === receiver && sender === $('#yourName').text())) {
-            $('#messages').append($('<li>').text(sender + ': ' + data.message));
+
+        if (privateChatUser === messageObj.sender || (privateChatUser === messageObj.receiver && messageObj.sender === $('#yourName').text())) {
+            $('#messages').append($('<li>').text(createMessageFromMessageObj(messageObj)));
         }
     });
 
@@ -124,5 +128,10 @@ $(() => {
     socket.on('upload error', (err) => {
         console.log(err);
     });
+
+
+    function createMessageFromMessageObj(messageObj) {
+        return messageObj.sender + ': ' + messageObj.message + '|' + messageObj.timeStamp;
+    }
 
 });
