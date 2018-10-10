@@ -1,12 +1,9 @@
-let express = require('express');
-let app = express();
-let http = require('http').Server(app);
-let io = require('socket.io')(http);
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const SocketIOFile = require('socket.io-file');
 
-let fs = require('fs');//TODO
-
-
-let date = new Date();
 
 //contains Sockets for quick access with username
 let connectedUsers = {};
@@ -15,8 +12,17 @@ let connectedUsers = {};
 let allUsernames = [];
 
 
-//enable access to the public folder
+//enable access to the public folder and simplify node modules paths
 app.use("/public", express.static(__dirname + "/public"));
+
+app.get('/socket.io.js', (req, res, next) => {
+    return res.sendFile(__dirname + '/node_modules/socket.io-client/dist/socket.io.js');
+});
+
+app.get('/socket.io-file-client.js', (req, res, next) => {
+    return res.sendFile(__dirname + '/node_modules/socket.io-file-client/socket.io-file-client.js');
+});
+
 
 //routes
 app.get('/', (req, res) => {
@@ -93,44 +99,29 @@ io.on('connection', (socket) => {
         }
     });
 
+    let uploader = new SocketIOFile(socket, {
+        // uploadDir: {			// multiple directories
+        // 	music: 'data/music',
+        // 	document: 'data/document'
+        // },
+        uploadDir: 'tmp',							// simple directory
+        maxFileSize: 4194304, 						// 4 MB. default is undefined(no limit)
+        chunkSize: 10240,							// default is 10240(1KB)
+        transmissionDelay: 0,						// delay of each transmission, higher value saves more cpu resources, lower upload speed. default is 0(no delay)
+        overwrite: false 							// overwrite file if exists, default is true.
+    });
 
-    let files = {},
-        struct = {
-            name: null,
-            type: null,
-            size: 0,
-            data: [],
-            slice: 0
-        };
+    //File upload handling
+    uploader.on('start', (fileInfo) => {
+    });
+    uploader.on('stream', (fileInfo) => {
+    });
+    uploader.on('complete', (fileInfo) => {
 
-    socket.on('slice upload', (data) => {
-        if (!files[data.name]) {
-            files[data.name] = Object.assign({}, struct, data);
-            files[data.name].data = [];
-        }
-        //convert the ArrayBuffer to Buffer
-        data.data = new Buffer(new Uint8Array(data.data));
-        //save the data
-        files[data.name].data.push(data.data);
-        files[data.name].slice++;
-
-        if (files[data.name].slice * 100000 >= files[data.name].size) {
-            var fileBuffer = Buffer.concat(files[data.name].data);
-
-
-            fs.writeFile(__dirname + '/tmp/' + data.name, fileBuffer, (err) => {
-                delete files[data.name];
-                if (err) {
-                    console.log(err);
-                    return socket.emit('upload error', err);
-                }
-                socket.emit('end upload');
-            });
-        } else {
-            socket.emit('request slice upload', {
-                currentSlice: files[data.name].slice
-            });
-        }
+    });
+    uploader.on('error', (err) => {
+    });
+    uploader.on('abort', (fileInfo) => {
     });
 
 });

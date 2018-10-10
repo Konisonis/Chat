@@ -8,11 +8,12 @@ body {
     font: 13px Helvetica, Arial;
 }
 
-#start{
+#start {
     text-align: center;
 }
-#login{
-   width:300px;
+
+#login {
+    width: 300px;
 }
 
 #chatForm {
@@ -41,25 +42,25 @@ body {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    height:500px;
+    height: 500px;
     overflow: auto;
 }
 
-#messages li{
+#messages li {
     width: max-content;
-    max-width:70%; /* limit width */
-    word-break:break-all; /* wrap extended text*/
+    max-width: 70%; /* limit width */
+    word-break: break-all; /* wrap extended text*/
     padding: 5px 10px;
     margin: 5px;
     border-radius: 10px;
 }
 
-#messages li.usermessage{
+#messages li.usermessage {
     background: #eee;
 }
 
-#messages li.yourmessage{
-    float:right;
+#messages li.yourmessage {
+    float: right;
     background: #01C9FA;
 }
 
@@ -71,7 +72,7 @@ body {
     padding: 20px;
     background-color: #f44336;
     color: white;
-    display:none;
+    display: none;
 }
 
 .closebtn {
@@ -85,13 +86,18 @@ body {
     transition: 0.3s;
 }
 
-
-
-.users{
-    right:0;
+.users {
+    right: 0;
     background-color: #f44336;
 }
 
-.userElement{
-    cursor:pointer;
+.userElement {
+    cursor: pointer;
+}
+
+.box__dragndrop,
+.box__uploading,
+.box__success,
+.box__error {
+    display: none;
 }

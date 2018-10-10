@@ -1,7 +1,7 @@
 $(() => {
     let socket = io();
 
-    let fileReader = new FileReader();
+    let uploader = new SocketIOFileClient(socket);
 
     let homeChat = [];
     let userList = {};
@@ -38,28 +38,19 @@ $(() => {
         return false;
     });
 
-    //send a file
-    $('#sendFile').click(() => {
-        let file = $('#inputFile')[0].files[0];
-        let slice = file.slice(0, 100000);
-        fileReader.readAsArrayBuffer(slice);
-        fileReader.onload = (evt) => {
-            let arrayBuffer = fileReader.result;
-            socket.emit('slice upload', {
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                data: arrayBuffer
+    //Start file upload
+    $('#file-upload').click(() => {
+        var fileEl = document.getElementById('inputFile');
+        if (fileEl) {
+            console.log('Upload triggered', fileEl);
+            let uploadIds = uploader.upload(fileEl, {
+                data: {/* Arbitrary data... */}
             });
-        };
-        socket.on('request slice upload', (data) => {
-            let place = data.currentSlice * 100000,
-                slice = file.slice(place, place + Math.min(100000, file.size - place));
-            fileReader.readAsArrayBuffer(slice);
-        });
+        }
     });
 
-    //Selecting a private chat
+
+//Selecting a private chat
     $('#users').on('click', 'li.userElement', (event) => {
         console.log($(event.target).text());
 
@@ -75,7 +66,7 @@ $(() => {
         }
     });
 
-    //Selecting the home chat
+//Selecting the home chat
     $('#homeChat').click(() => {
         $('#messages').empty();
         privateChatUser = undefined;
@@ -86,17 +77,17 @@ $(() => {
     });
 
 
-    //Receiving a message
+//Receiving a message
     socket.on('chat message', (messageObj = {timeStamp, sender, message}) => {
         homeChat.push(messageObj);
-        if(messageObj.sender !== $('#yourName').text()){
+        if (messageObj.sender !== $('#yourName').text()) {
             $('#messages').append($('<li class="usermessage">').text(createMessageFromMessageObj(messageObj)));
-        }else{
+        } else {
             $('#messages').append($('<li class="yourmessage">').text(createMessageFromMessageObj(messageObj)));
         }
     });
 
-    //Receiving an updated user list
+//Receiving an updated user list
     socket.on('user list', (userArray) => {
         $('#users').empty();
 
@@ -108,7 +99,7 @@ $(() => {
         });
     });
 
-    //receiving a private message
+//receiving a private message
     socket.on('private message', (messageObj = {timeStamp, sender, receiver, message}) => {
 
         console.log(messageObj);
@@ -124,17 +115,23 @@ $(() => {
         }
     });
 
-    socket.on('end upload', () => {
-        console.log('file successful uploaded');
+
+//File upload events
+    uploader.on('start', (fileInfo) => {
+        console.log('Start uploading', fileInfo);
+    });
+    uploader.on('stream', (fileInfo) => {
+        console.log('Streaming... sent ' + fileInfo.sent + ' bytes.');
+    });
+    uploader.on('complete', (fileInfo) => {
+        console.log('Upload Complete', fileInfo);
     });
 
-    socket.on('upload error', (err) => {
-        console.log(err);
-    });
 
 
     function createMessageFromMessageObj(messageObj) {
         return messageObj.sender + ': ' + messageObj.message + '|' + messageObj.timeStamp;
     }
 
-});
+})
+;
