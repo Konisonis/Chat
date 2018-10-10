@@ -28,7 +28,6 @@ $(() => {
 
     //send a chat message
     $('#chatForm').submit(() => {
-
         //private chat
         if (privateChatUser) {
             socket.emit('private message', $('#m').val(), privateChatUser);
@@ -90,7 +89,11 @@ $(() => {
     //Receiving a message
     socket.on('chat message', (messageObj = {timeStamp, sender, message}) => {
         homeChat.push(messageObj);
-        $('#messages').append($('<li>').text(createMessageFromMessageObj(messageObj)));
+        if(messageObj.sender !== $('#yourName').text()){
+            $('#messages').append($('<li class="usermessage">').text(createMessageFromMessageObj(messageObj)));
+        }else{
+            $('#messages').append($('<li class="yourmessage">').text(createMessageFromMessageObj(messageObj)));
+        }
     });
 
     //Receiving an updated user list

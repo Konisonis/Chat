@@ -45,12 +45,22 @@ body {
     overflow: auto;
 }
 
-#messages li {
+#messages li{
+    width: max-content;
+    max-width:70%; /* limit width */
+    word-break:break-all; /* wrap extended text*/
     padding: 5px 10px;
+    margin: 5px;
+    border-radius: 10px;
 }
 
-#messages li:nth-child(odd) {
+#messages li.usermessage{
     background: #eee;
+}
+
+#messages li.yourmessage{
+    float:right;
+    background: #01C9FA;
 }
 
 #chat {
