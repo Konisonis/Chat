@@ -80,9 +80,9 @@ $(() => {
     socket.on('chat message', (messageObj = {timeStamp, sender, message}) => {
         homeChat.push(messageObj);
         if (messageObj.sender !== $('#yourName').text()) {
-            $('#messages').append($('<li class="usermessage">').text(createMessageFromMessageObj(messageObj)));
+            appendMessageToChat(messageObj, "usermessage");
         } else {
-            $('#messages').append($('<li class="yourmessage">').text(createMessageFromMessageObj(messageObj)));
+            appendMessageToChat(messageObj, "yourmessage");
         }
     });
 
@@ -132,10 +132,21 @@ $(() => {
         $('#inputFile').click();
     });
 
-
-    function createMessageFromMessageObj(messageObj) {
-        return messageObj.sender + ': ' + messageObj.message + '|' + messageObj.timeStamp;
+    function appendMessageToChat(messageObj, chatType){
+        $('#messages').append(createMessageHtml(messageObj, chatType));
+        $('#messages').scrollTop($('#messages')[0].scrollHeight);
     }
 
+    function createMessageHtml(messageObj, chatType){
+        let message = '';
+        message += '<div class="' + chatType + '">';
+        if(chatType !== "yourmessage"){
+            message += '<div class="sender">' + messageObj.sender + '</div>';
+        }
+        message += '<div class="message">' + messageObj.message + '</div>';
+        message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
+        message += '</div>';
+        return message;
+    }
 })
 ;

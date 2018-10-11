@@ -65,12 +65,13 @@
 <div class="container-fluid" id="chat">
 
     <button id="homeChat" class="btn btn-primary">Home</button>
+    <br>
     You are chatting as: <span id="yourName"></span>
     <br>
     You are chatting with: <span id="chatPartner">Everyone</span>
     <div class="row">
         <div class="col-10">
-            <ul class="list-group" id="messages"></ul>
+            <div id="messages"></div>
             <form id="chatForm" action="">
                 <input id="m" required="required" autocomplete="off"/>
                 <button>Send</button>
@@ -89,11 +90,7 @@
             <div>
                 <ul class="list-group" id="users"></ul>
             </div>
-
-
         </div>
-
-
     </div>
 </div>
 </body>

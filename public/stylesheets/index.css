@@ -1,8 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+
 
 body {
     font: 13px Helvetica, Arial;
@@ -39,29 +35,42 @@ body {
 }
 
 #messages {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+    padding: 5px 5px;
     height: 500px;
-    overflow: auto;
+    overflow: scroll;
+    background: #ffffff;
 }
 
-#messages li {
+#messages div {
+    font-size: 10pt;
+    overflow: auto;
     width: max-content;
     max-width: 70%; /* limit width */
     word-break: break-all; /* wrap extended text*/
-    padding: 5px 10px;
-    margin: 5px;
-    border-radius: 10px;
 }
 
-#messages li.usermessage {
+#messages div.usermessage {
+    border-radius: 10px;
+    padding: 10px;
+    margin-left: 20px;
+    margin-top: 5px;    clear: right;
     background: #eee;
 }
 
-#messages li.yourmessage {
+#messages div.yourmessage {
+    border-radius: 10px;
+    padding: 10px;
+    margin-right: 20px;
+    margin-top: 5px;
     float: right;
+    clear: left;
+    clear: right;
     background: #01C9FA;
+}
+
+#messages div.timestamp{
+    font-size: 7pt;
+    float: right;
 }
 
 #chat {
