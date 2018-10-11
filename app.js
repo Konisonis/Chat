@@ -23,7 +23,6 @@ app.get('/socket.io-file-client.js', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/socket.io-file-client/socket.io-file-client.js');
 });
 
-
 //routes
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');

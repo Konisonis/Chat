@@ -39,7 +39,7 @@ $(() => {
     });
 
     //Start file upload
-    $('#file-upload').click(() => {
+    $('#inputFile').change(() => {
         var fileEl = document.getElementById('inputFile');
         if (fileEl) {
             console.log('Upload triggered', fileEl);
@@ -52,7 +52,6 @@ $(() => {
 
 //Selecting a private chat
     $('#users').on('click', 'li.userElement', (event) => {
-        console.log($(event.target).text());
 
         privateChatUser = $(event.target).text();
         $('#chatPartner').text(privateChatUser);
@@ -102,16 +101,17 @@ $(() => {
 //receiving a private message
     socket.on('private message', (messageObj = {timeStamp, sender, receiver, message}) => {
 
-        console.log(messageObj);
 
         if (userList[messageObj.sender]) {
             userList[messageObj.sender].messages.push(messageObj);
         } else if (userList[messageObj.receiver]) {
             userList[messageObj.receiver].messages.push(messageObj);
         }
-
+        //print message if chat is open
         if (privateChatUser === messageObj.sender || (privateChatUser === messageObj.receiver && messageObj.sender === $('#yourName').text())) {
             $('#messages').append($('<li>').text(createMessageFromMessageObj(messageObj)));
+        } else {
+
         }
     });
 
@@ -127,6 +127,10 @@ $(() => {
         console.log('Upload Complete', fileInfo);
     });
 
+
+    $('#fileChooseTrigger').click(() => {
+        $('#inputFile').click();
+    });
 
 
     function createMessageFromMessageObj(messageObj) {

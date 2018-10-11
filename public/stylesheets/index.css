@@ -95,9 +95,10 @@ body {
     cursor: pointer;
 }
 
-.box__dragndrop,
-.box__uploading,
-.box__success,
-.box__error {
-    display: none;
+#fileChooseTrigger {
+    display: flex;
+    background: url('../pictures/paperclip.png') no-repeat center center;
+    width: 36px;
+    height: 36px;
+    border: none;
 }
