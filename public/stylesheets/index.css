@@ -12,6 +12,7 @@ button {
 
 #start {
     background-color: #eeeeee;
+    border-radius: 25px;
     position: absolute;
     text-align: center;
     top: 30%;
@@ -64,6 +65,7 @@ button {
     margin-left: 20px;
     margin-top: 5px;
     clear: right;
+    border:1px solid rgba(76, 76, 76, 0.94);
     background: #eeeeee;
 }
 
