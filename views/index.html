@@ -67,8 +67,6 @@
 <div class="container-fluid" id="chat">
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <button id="homeChat" class="btn btn-primary">Home</button>
-        <br>
         <span>You are chatting as: <span id="yourName"></span></span>
         <br>
 
@@ -101,9 +99,13 @@
         <div class="col-2" style="background-color:#eeeeee; border-radius: 25px">
             <!--Other logged in users-->
 
+            <button class="btn btn-primary bmd-btn-fab" id="homeChat">
+                <i class="material-icons">home</i>
+            </button>
+
             <div>Users-Online</div>
             <div>
-                <ul class="list-group" id="users"></ul>
+                <ul class="list-unstyled" id="users"></ul>
             </div>
 
 

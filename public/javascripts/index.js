@@ -91,7 +91,7 @@ $(() => {
         userArray.forEach((user) => {  //users are Strings
             if (user !== $('#yourName').text()) {
                 userList[user] = {user: user, messages: []};
-                $('#users').append('<li><button type="button" class="userElement btn btn-primary" value="' + user + '">\n' +
+                $('#users').append('<li><i class="material-icons">face</i>\n<button type="button" class="userElement btn btn-primary" value="' + user + '">\n' +
                     '                    ' + user + '<span class="badge badge-light"></span>\n' +
                     '                    <span class="sr-only"></span>\n' +
                     '                </button></li>');

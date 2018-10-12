@@ -112,12 +112,14 @@ button {
 
 .userElement {
     cursor: pointer;
-    width: 50%;
+    width: 100px;
     height: 50px;
 }
 
 #homeChat {
-
+    position: absolute;
+    top: 0px;
+    right: 0px;
 }
 
 
