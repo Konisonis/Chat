@@ -11,7 +11,7 @@ $(() => {
 
     //Log in with user name
     $('#loginForm').submit(() => {
-        socket.emit('login', $('#user').val(), (ok) => {
+            socket.emit('login', $('#user').val(), (ok) => {
                 if (ok) {
                     $('#chat').show();
                     $('#modal').modal('toggle');
@@ -53,11 +53,11 @@ $(() => {
 
 
 //Selecting a private chat
-    $('#users').on('click', 'li.userElement', (event) => {
-
-        privateChatUser = $(event.target).text();
+    $('#users').on('click', 'button.userElement', (event) => {
+        privateChatUser = $(event.target).val();
         $('#chatPartner').text(privateChatUser);
         let privateChat = userList[privateChatUser].messages;
+
 
         if (privateChat) {
             $('#messages').empty();
@@ -86,12 +86,16 @@ $(() => {
 
 //Receiving an updated user list
     socket.on('user list', (userArray) => {
-        $('#users').empty();
+        $('#users').empty();//TODO delets every chat history
 
         userArray.forEach((user) => {  //users are Strings
             if (user !== $('#yourName').text()) {
                 userList[user] = {user: user, messages: []};
-                $('#users').append($('<li class="userElement">').text(user));
+                $('#users').append('<li><button type="button" class="userElement btn btn-primary" value="' + user + '">\n' +
+                    '                    ' + user + '<span class="badge badge-light"></span>\n' +
+                    '                    <span class="sr-only"></span>\n' +
+                    '                </button></li>');
+
             }
         });
     });

@@ -1,11 +1,18 @@
 
-
 body {
     font: 13px Helvetica, Arial;
+    background-image: url("../pictures/background.jpg");
+
+}
+
+button {
+    font-size: 200px;
+
 }
 
 #start {
-    position:absolute;
+    background-color: #eeeeee;
+    position: absolute;
     text-align: center;
     top: 30%;
     left: 40%;
@@ -24,6 +31,7 @@ body {
 }
 
 #chatForm input {
+    border-radius: 25px;
     border: 0;
     padding: 10px;
     width: 70%;
@@ -54,7 +62,8 @@ body {
     border-radius: 10px;
     padding: 10px;
     margin-left: 20px;
-    margin-top: 5px;    clear: right;
+    margin-top: 5px;
+    clear: right;
     background: #eee;
 }
 
@@ -69,12 +78,13 @@ body {
     background: #01C9FA;
 }
 
-#messages div.timestamp{
+#messages div.timestamp {
     font-size: 7pt;
     float: right;
 }
 
 #chat {
+
     display: none;
 }
 
@@ -98,14 +108,16 @@ body {
 
 .users {
     right: 0;
-    background-color: #f44336;
 }
 
 .userElement {
     cursor: pointer;
+    width: 50%;
+    height: 50px;
 }
 
-#file-chooser{
+#homeChat {
 
 }
+
 

@@ -31,7 +31,7 @@
         <h1>Welcome to the chat</h1>
         <h2>Please login</h2>
         <!-- Button trigger modal -->
-        <button id="login" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal">
+        <button id="login" type="submit" class="btn btn-primary" data-toggle="modal" data-target="#modal">
             Login
         </button>
     </div>
@@ -66,30 +66,29 @@
 <!--Chat-->
 <div class="container-fluid" id="chat">
 
-    <button id="homeChat" class="btn btn-primary">Home</button>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button id="homeChat" class="btn btn-primary">Home</button>
+        <br>
+        <span>You are chatting as: <span id="yourName"></span></span>
+        <br>
+
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;You are chatting with: <span id="chatPartner">Everyone</span></span>
+    </nav>
+
     <br>
-    You are chatting as: <span id="yourName"></span>
     <br>
-    You are chatting with: <span id="chatPartner">Everyone</span>
+    <br>
+
     <div class="row">
         <div class="col-10">
             <div id="messages"></div>
+
             <form id="chatForm" class="form-group" action="">
                 <input id="m" class="form-text" required="required" autocomplete="off"/>
                 <button type="submit" class="btn btn-primary bmd-btn-fab">
                     <i class="material-icons">send</i>
                 </button>
             </form>
-        </div>
-
-        <div class="col-2">
-            <!--Other logged in users-->
-
-            <div>Users-Online</div>
-            <div>
-                <ul class="list-group" id="users"></ul>
-            </div>
-
             <!--File chooser-->
             <div id="file-chooser">
                 <input type="file" id="inputFile" style="display: none;"/>
@@ -97,6 +96,16 @@
                     <i class="material-icons">attachment</i>
                 </button>
             </div>
+        </div>
+
+        <div class="col-2" style="background-color:#eeeeee; border-radius: 25px">
+            <!--Other logged in users-->
+
+            <div>Users-Online</div>
+            <div>
+                <ul class="list-group" id="users"></ul>
+            </div>
+
 
         </div>
     </div>
