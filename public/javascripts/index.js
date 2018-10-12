@@ -44,7 +44,6 @@ $(() => {
     $('#inputFile').change(() => {
         var fileEl = document.getElementById('inputFile');
         if (fileEl) {
-            console.log('Upload triggered', fileEl);
             let uploadIds = uploader.upload(fileEl, {
                 data: {/* Arbitrary data... */}
             });
@@ -118,19 +117,27 @@ $(() => {
     });
 
 
+
 //File upload events
     uploader.on('start', (fileInfo) => {
-        console.log('Start uploading', fileInfo);
+        $('#fileChooseTrigger').attr('disabled',true);
     });
     uploader.on('stream', (fileInfo) => {
-        console.log('Streaming... sent ' + fileInfo.sent + ' bytes.');
+        if (fileInfo.size > 0) {
+            $('.progress-bar').css('width', fileInfo.sent /fileInfo.size *100 + '%');
+        }
     });
+
     uploader.on('complete', (fileInfo) => {
-        console.log('Upload Complete', fileInfo);
+        $('.progress-bar').css('width', 100+ '%');
+        $('#fileChooseTrigger').attr('disabled',false);
+
+
     });
 
 
     $('#fileChooseTrigger').click(() => {
+        $('.progress-bar').css('width', 0+ '%');
         $('#inputFile').click();
     });
 

@@ -47,7 +47,7 @@ button {
     padding: 5px 5px;
     height: 500px;
     overflow: scroll;
-    background: #ffffff;
+    background: #eeeeee;
 }
 
 #messages div {
@@ -64,7 +64,7 @@ button {
     margin-left: 20px;
     margin-top: 5px;
     clear: right;
-    background: #eee;
+    background: #eeeeee;
 }
 
 #messages div.yourmessage {
@@ -91,13 +91,13 @@ button {
 .alert {
     padding: 20px;
     background-color: #f44336;
-    color: white;
+    color: #eeeeee;
     display: none;
 }
 
 .closebtn {
     margin-left: 15px;
-    color: white;
+    color: #eeeeee;
     font-weight: bold;
     float: right;
     font-size: 22px;
@@ -120,6 +120,15 @@ button {
     position: absolute;
     top: 0px;
     right: 0px;
+}
+
+.progress {
+    height: 20px;
+    width: 100%;
+}
+
+#file-chooser{
+    width: 200px
 }
 
 
