@@ -131,6 +131,7 @@ $(() => {
     uploader.on('complete', (fileInfo) => {
         $('.progress-bar').css('width', 100+ '%');
         $('#fileChooseTrigger').attr('disabled',false);
+        $('#uploadFinished').show();
 
 
     });
@@ -138,6 +139,7 @@ $(() => {
 
     $('#fileChooseTrigger').click(() => {
         $('.progress-bar').css('width', 0+ '%');
+        $('#uploadFinished').hide();
         $('#inputFile').click();
     });
 
