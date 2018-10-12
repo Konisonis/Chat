@@ -60,7 +60,7 @@ $(() => {
         if (privateChat) {
             $('#messages').empty();
             privateChat.forEach((messageObj) => { //data=> {sender,message}
-                $('#messages').append($('<li>').text(createMessageFromMessageObj(messageObj)));
+                appendMessageToChat(messageObj);
             });
         }
     });
@@ -70,8 +70,8 @@ $(() => {
         $('#messages').empty();
         privateChatUser = undefined;
         $('#chatPartner').text('Everyone');
-        homeChat.forEach((messageObject) => {
-            $('#messages').append($('<li>').text(createMessageFromMessageObj(messageObject)));
+        homeChat.forEach((messageObj) => {
+            appendMessageToChat(messageObj)
         });
     });
 
@@ -79,11 +79,7 @@ $(() => {
 //Receiving a message
     socket.on('chat message', (messageObj = {timeStamp, sender, message}) => {
         homeChat.push(messageObj);
-        if (messageObj.sender !== $('#yourName').text()) {
-            appendMessageToChat(messageObj, "usermessage");
-        } else {
-            appendMessageToChat(messageObj, "yourmessage");
-        }
+        appendMessageToChat(messageObj);
     });
 
 //Receiving an updated user list
@@ -109,7 +105,7 @@ $(() => {
         }
         //print message if chat is open
         if (privateChatUser === messageObj.sender || (privateChatUser === messageObj.receiver && messageObj.sender === $('#yourName').text())) {
-            $('#messages').append($('<li>').text(createMessageFromMessageObj(messageObj)));
+            appendMessageToChat(messageObj);
         } else {
 
         }
@@ -132,15 +128,25 @@ $(() => {
         $('#inputFile').click();
     });
 
-    function appendMessageToChat(messageObj, chatType){
-        $('#messages').append(createMessageHtml(messageObj, chatType));
-        $('#messages').scrollTop($('#messages')[0].scrollHeight);
+    function appendMessageToChat(messageObj) {
+        let chatType;
+        if (messageObj.sender !== $('#yourName').text()) {
+            chatType = "usermessage";
+        } else {
+            chatType = "yourmessage";
+        }
+        let messages = $('#messages');
+
+        messages.append(createMessageHtml(messageObj, chatType));
+        messages.scrollTop(messages[0].scrollHeight);
     }
 
-    function createMessageHtml(messageObj, chatType){
+
+    //Creates a message html element with all information it needs
+    function createMessageHtml(messageObj, chatType) {
         let message = '';
         message += '<div class="' + chatType + '">';
-        if(chatType !== "yourmessage"){
+        if (chatType !== "yourmessage") {
             message += '<div class="sender">' + messageObj.sender + '</div>';
         }
         message += '<div class="message">' + messageObj.message + '</div>';
