@@ -15,6 +15,9 @@ let allUsernames = [];
 //enable access to the public folder and simplify node modules paths
 app.use("/public", express.static(__dirname + "/public"));
 
+app.use('/bootstrap-material', express.static(__dirname + '/node_modules/bootstrap-material-design'));
+
+
 app.get('/socket.io.js', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/socket.io-client/dist/socket.io.js');
 });
@@ -22,6 +25,12 @@ app.get('/socket.io.js', (req, res, next) => {
 app.get('/socket.io-file-client.js', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/socket.io-file-client/socket.io-file-client.js');
 });
+
+
+app.get('/bootstrap-icons.scss', (req, res, next) => {
+    return res.sendFile(__dirname + '/node_modules/material-icons/iconfont/material-icons.scss');
+});
+
 
 //routes
 app.get('/', (req, res) => {

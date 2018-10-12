@@ -11,7 +11,7 @@ $(() => {
 
     //Log in with user name
     $('#loginForm').submit(() => {
-            socket.emit('login', $('#user').val(), (ok) => {
+        socket.emit('login', $('#user').val(), (ok) => {
                 if (ok) {
                     $('#chat').show();
                     $('#modal').modal('toggle');
@@ -27,10 +27,12 @@ $(() => {
     );
 
     //send a chat message
-    $('#chatForm').submit(() => {
+    $('#chatForm').submit((event) => {
+        event.preventDefault();
         //private chat
         if (privateChatUser) {
             socket.emit('private message', $('#m').val(), privateChatUser);
+            //public chat
         } else {
             socket.emit('chat message', $('#m').val());
         }
