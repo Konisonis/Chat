@@ -7,7 +7,6 @@ body {
 
 button {
     font-size: 200px;
-
 }
 
 #start {
@@ -15,8 +14,9 @@ button {
     border-radius: 25px;
     position: absolute;
     text-align: center;
-    top: 30%;
-    left: 40%;
+    top: 25%;
+    left: 37%;
+    padding: 3%;
 }
 
 #login {
@@ -24,19 +24,22 @@ button {
 }
 
 #chatForm {
+    display: inline;
     padding: 3px;
-    position: fixed;
     bottom: 0;
     width: 100%;
-    display: flex;
+}
+
+#chatForm form{
 }
 
 #chatForm input {
+    width: 70%;
     border-radius: 25px;
     border: 0;
     padding: 10px;
-    width: 70%;
     margin-right: .5%;
+    float: left;
 }
 
 #chatForm button {
@@ -44,11 +47,25 @@ button {
     padding: 10px;
 }
 
+#chatForm button.send-button{
+    float: right;
+}
+
+#file-chooser{
+    padding: 10px;
+    float: left;
+}
+
+#file-chooser {
+
+}
+
 #messages {
     padding: 5px 5px;
     height: 500px;
     overflow: scroll;
     background: #eeeeee;
+    border-radius: 10px;
 }
 
 #messages div {
@@ -127,10 +144,6 @@ button {
 .progress {
     height: 20px;
     width: 100%;
-}
-
-#file-chooser{
-    width: 200px;
 }
 
 #uploadFinished{

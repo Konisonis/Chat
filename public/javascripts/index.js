@@ -131,9 +131,7 @@ $(() => {
     uploader.on('complete', (fileInfo) => {
         $('.progress-bar').css('width', 100+ '%');
         $('#fileChooseTrigger').attr('disabled',false);
-        $('#uploadFinished').show();
-
-
+        //$('#uploadFinished').show(); //sieht nich so gut aus
     });
 
 
