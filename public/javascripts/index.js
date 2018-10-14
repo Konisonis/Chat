@@ -84,19 +84,22 @@ $(() => {
     });
 
 //Receiving an updated user list
-    socket.on('user list', (userArray) => {
-        $('#users').empty();//TODO delets every chat history
-
-        userArray.forEach((user) => {  //users are Strings
-            if (user !== $('#yourName').text()) {
-                userList[user] = {user: user, messages: []};
-                $('#users').append('<li><i class="material-icons">face</i>\n<button type="button" class="userElement btn btn-primary" value="' + user + '">\n' +
-                    '                    ' + user + '<span class="badge badge-light"></span>\n' +
-                    '                    <span class="sr-only"></span>\n' +
-                    '                </button></li>');
-
-            }
+    socket.on('user list', (users) => {
+        $('#users').empty();
+        users.forEach((user) => {
+            userList[user] = {user: user, messages: []};
         });
+        updateUsers();
+    });
+
+    socket.on('user joined', (user) => {
+        userList[user] = {user: user, messages: []};
+        updateUsers();
+    });
+
+    socket.on('user left', (user) => {
+        delete userList[user];  // Remove key from json object
+        updateUsers();
     });
 
 //receiving a private message
@@ -117,26 +120,25 @@ $(() => {
     });
 
 
-
 //File upload events
     uploader.on('start', (fileInfo) => {
-        $('#fileChooseTrigger').attr('disabled',true);
+        $('#fileChooseTrigger').attr('disabled', true);
     });
     uploader.on('stream', (fileInfo) => {
         if (fileInfo.size > 0) {
-            $('.progress-bar').css('width', fileInfo.sent /fileInfo.size *100 + '%');
+            $('.progress-bar').css('width', fileInfo.sent / fileInfo.size * 100 + '%');
         }
     });
 
     uploader.on('complete', (fileInfo) => {
-        $('.progress-bar').css('width', 100+ '%');
-        $('#fileChooseTrigger').attr('disabled',false);
+        $('.progress-bar').css('width', 100 + '%');
+        $('#fileChooseTrigger').attr('disabled', false);
         //$('#uploadFinished').show(); //sieht nich so gut aus
     });
 
 
     $('#fileChooseTrigger').click(() => {
-        $('.progress-bar').css('width', 0+ '%');
+        $('.progress-bar').css('width', 0 + '%');
         $('#uploadFinished').hide();
         $('#inputFile').click();
     });
@@ -166,6 +168,18 @@ $(() => {
         message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
         message += '</div>';
         return message;
+    }
+
+    function updateUsers() {
+        $('#users').empty();
+        Object.entries(userList).forEach(([key, value]) => {  //Iterate over Json Object
+            if (value.user !== $('#yourName').text()) {
+                $('#users').append('<li><i class="material-icons">face</i>\n<button type="button" class="userElement btn btn-primary" value="' + value.user + '">\n' +
+                    '                    ' + value.user + '<span class="badge badge-light"></span>\n' +
+                    '                    <span class="sr-only"></span>\n' +
+                    '                </button></li>');
+            }
+        });
     }
 })
 ;

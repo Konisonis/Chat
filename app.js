@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
     //on client disconnect
     socket.on('disconnect', () => {
         removeUser(socket);
-        io.emit('user list', allUsernames);
+        io.emit('user left', socket.user);
 
     });
 
@@ -80,7 +80,8 @@ io.on('connection', (socket) => {
                     sender: socket.user,
                     message: 'CONNECTED'
                 });
-                io.emit('user list', allUsernames);
+                socket.emit('user list', allUsernames);
+                socket.broadcast.emit('user joined', username);
             }
         }
         catch (err) {
