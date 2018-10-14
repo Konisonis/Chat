@@ -30,7 +30,7 @@ button {
     width: 100%;
 }
 
-#chatForm form{
+#chatForm form {
 }
 
 #chatForm input {
@@ -47,11 +47,11 @@ button {
     padding: 10px;
 }
 
-#chatForm button.send-button{
+#chatForm button.send-button {
     float: right;
 }
 
-#file-chooser{
+#file-chooser {
     padding: 10px;
     float: left;
 }
@@ -62,7 +62,8 @@ button {
 
 #messages {
     padding: 5px 5px;
-    height: 500px;
+    height: 420px;
+    border-radius: 25px;
     overflow: scroll;
     background: #eeeeee;
     border-radius: 10px;
@@ -82,7 +83,7 @@ button {
     margin-left: 20px;
     margin-top: 5px;
     clear: right;
-    border:1px solid rgba(76, 76, 76, 0.94);
+    border: 1px solid rgba(76, 76, 76, 0.94);
     background: #eeeeee;
 }
 
@@ -146,8 +147,14 @@ button {
     width: 100%;
 }
 
-#uploadFinished{
-    display:none;
+#uploadFinished {
+    display: none;
+}
+
+#chatSelection {
+    background-color: #eeeeee;
+    border-radius: 25px
+
 }
 
 
