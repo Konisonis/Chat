@@ -8,9 +8,6 @@ const SocketIOFile = require('socket.io-file');
 //contains Sockets for quick access with username
 let connectedUsers = {};
 
-//contains usernames for a list of usernames
-let allUsernames = [];
-
 
 //enable access to the public folder and simplify node modules paths
 app.use("/public", express.static(__dirname + "/public"));
@@ -44,23 +41,6 @@ io.on('connection', (socket) => {
     //on client disconnect
     socket.on('disconnect', () => {
         removeUser(socket);
-        io.emit('user left', socket.user);
-
-    });
-
-    //receiving a chat message
-    socket.on('chat message', (message) => {
-        let user = socket.user;
-        let msg = message;
-        if (socket.user && message) {
-            allUsernames.forEach((username) => {
-                let userSocket = connectedUsers[username];
-                if (userSocket) {
-                    userSocket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: msg}); // Only sends message to logged in users not to all
-
-                }
-            });
-        }
     });
 
     //new client log-in
@@ -74,20 +54,32 @@ io.on('connection', (socket) => {
                 socket.user = username;
                 callback(true);
                 connectedUsers[username] = socket;
-                allUsernames.push(username);
                 io.emit('chat message', {           //TODO not for everyone!!!
                     timeStamp: new Date().toUTCString(),
                     sender: socket.user,
                     message: 'CONNECTED'
                 });
-                socket.emit('user list', allUsernames);
+                socket.emit('user list', createListWithUserNames());
                 socket.broadcast.emit('user joined', username);
             }
         }
         catch (err) {
             console.log(err);
         }
+    });
 
+    //receiving a chat message
+    socket.on('chat message', (message) => {
+        let user = socket.user;
+        let msg = message;
+        if (socket.user && message) {
+            Object.entries(connectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
+                let userSocket = connectedUsers[key];
+                if (userSocket) {
+                    userSocket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: msg}); // Only sends message to logged in users not to all
+                }
+            });
+        }
     });
 
     //Send a message only to one specific client
@@ -136,19 +128,21 @@ io.on('connection', (socket) => {
 });
 
 function removeUser(socket) {
-    //remove username from allUsernames array
-    let index = allUsernames.findIndex((username) => {
-        return username === socket.user;
-    });
-    if (index > -1) {
-        allUsernames.splice(index, 1);
-    }
-
     //remove Socket from connectedUsers JSON
     if (connectedUsers[socket.user]) {
-        connectedUsers[socket.user] = undefined;
+        delete connectedUsers[socket.user];
+        io.emit('user left', socket.user);
         io.emit('chat message', {timeStamp: new Date().toUTCString(), sender: socket.user, message: 'DISCONNECTED'});
     }
+}
+
+function createListWithUserNames() {
+    let list = [];
+    Object.entries(connectedUsers).forEach(([key, value]) => { //key => username, value=> socket
+        list.push(key);
+    });
+
+    return list;
 }
 
 

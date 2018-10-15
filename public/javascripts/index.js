@@ -84,7 +84,7 @@ $(() => {
     });
 
 //Receiving an updated user list
-    socket.on('user list', (users) => {
+    socket.on('user list', (users) => {  //users = [userName1, userName2]
         $('#users').empty();
         users.forEach((user) => {
             userList[user] = {user: user, messages: []};
@@ -172,7 +172,7 @@ $(() => {
 
     function updateUsers() {
         $('#users').empty();
-        Object.entries(userList).forEach(([key, value]) => {  //Iterate over Json Object
+        Object.entries(userList).forEach(([key, value]) => {  //key => username, value=> {user, messages}
             if (value.user !== $('#yourName').text()) {
                 $('#users').append('<li><i class="material-icons">face</i>\n<button type="button" class="userElement btn btn-primary" value="' + value.user + '">\n' +
                     '                    ' + value.user + '<span class="badge badge-light"></span>\n' +
