@@ -1,9 +1,6 @@
 $(() => {
     const socket = io();
 
-    //let uploader = new SocketIOFileClient(socket);
-
-
     let homeChat = [];
     let userList = {};
 
@@ -47,20 +44,23 @@ $(() => {
         //let fileEl = document.getElementById('inputFile');
 
         let file = e.target.files[0];
+        if (file) {
+            let stream = ss.createStream();
+            // upload a file to the server.
+            ss(socket).emit('public file', stream, {name: file.name, size: file.size});
 
-        let stream = ss.createStream();
 
-        // upload a file to the server.
-        ss(socket).emit('file', stream, {name: file.name, size: file.size});
+            let blobStream = ss.createBlobReadStream(file);
+            let size = 0;
 
-        let blobStream = ss.createBlobReadStream(file);
-        let size = 0;
+            blobStream.on('data', (chunk) => {
+                size += chunk.length;
+                $('.progress-bar').css('width', size / file.size * 100 + '%');
+            });
+            blobStream.pipe(stream);
 
-        blobStream.on('data', (chunk) => {
-            size += chunk.length;
-            $('.progress-bar').css('width', size / file.size * 100 + '%');
-        });
-        blobStream.pipe(stream);
+
+        }
     });
 
 //Selecting a private chat
@@ -131,6 +131,23 @@ $(() => {
         }
     });
 
+    //receiving a file
+    ss(socket).on('public file', (stream, data) => {
+        let binaryData = [];
+
+        stream.on('data', (chunk) => {
+            binaryData.push.apply(binaryData, chunk);
+
+        });
+        stream.on('end', () => {
+            console.log(binaryData);
+            let blob = new Blob([new Uint8Array(binaryData)], {type: 'image/jpeg'});
+            let imageUrl = URL.createObjectURL(blob);
+            displayPicture(imageUrl);
+
+            // $('#picture').attr('src', file)
+        });
+    });
 
 //Trigger the file chooser
     $('#fileChooseTrigger').click(() => {
@@ -180,5 +197,23 @@ $(() => {
             }
         });
     }
+
+
+    function displayPicture(url) {
+        let message = '';
+        message += '<div class="' + "yourmessage" + '">';
+
+        message += '<div class="sender">' + 'Fuu' + '</div>';
+
+        let picture = '<div class="message"><img id="picture" src="' + url + '"></div>';
+        message += picture;
+
+
+        message += '<div class="timestamp">' + 'Fuu' + '</div>';
+        message += '</div>';
+        $('#messages').append(message);
+    }
+
+
 })
 ;

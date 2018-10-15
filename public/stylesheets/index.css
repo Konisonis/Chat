@@ -73,7 +73,6 @@ button {
     font-size: 10pt;
     overflow: auto;
     width: max-content;
-    max-width: 70%; /* limit width */
     word-break: break-all; /* wrap extended text*/
 }
 
@@ -154,7 +153,10 @@ button {
 #chatSelection {
     background-color: #eeeeee;
     border-radius: 25px
+}
 
+#picture {
+    width: 200px;
 }
 
 

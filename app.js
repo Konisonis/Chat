@@ -38,9 +38,10 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
 
     //For Streaming files
-    ss(socket).on('file', (stream, data)=> {
-        let filename = __dirname+'/tmp/'+data.name;
-        stream.pipe(fs.createWriteStream(filename));
+    ss(socket).on('public file', (stream, data) => {
+        let outgoingstream = ss.createStream();
+        ss(socket).emit('public file', outgoingstream, {name: data.name, size: data.size});
+        stream.pipe(outgoingstream);
     });
 
 
@@ -105,33 +106,6 @@ io.on('connection', (socket) => {
             socket.emit('private message', data);
         }
     });
-
-    /*
-    let uploader = new SocketIOFile(socket, {
-        // uploadDir: {			// multiple directories
-        // 	music: 'data/music',
-        // 	document: 'data/document'
-        // },
-        uploadDir: 'tmp',							// simple directory
-        maxFileSize: 4194304, 						// 4 MB. default is undefined(no limit)
-        chunkSize: 10240,							// default is 10240(1KB)
-        transmissionDelay: 0,						// delay of each transmission, higher value saves more cpu resources, lower upload speed. default is 0(no delay)
-        overwrite: false 							// overwrite file if exists, default is true.
-    });
-
-    //File upload handling
-    uploader.on('start', (fileInfo) => {
-    });
-    uploader.on('stream', (fileInfo) => {
-    });
-    uploader.on('complete', (fileInfo) => {
-
-    });
-    uploader.on('error', (err) => {
-    });
-    uploader.on('abort', (fileInfo) => {
-    });
-    */
 
 });
 
