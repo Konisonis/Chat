@@ -2,7 +2,10 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const SocketIOFile = require('socket.io-file');
+
+const ss = require('socket.io-stream');
+const path = require('path');
+var fs = require('fs');
 
 
 //contains Sockets for quick access with username
@@ -15,12 +18,8 @@ app.use("/public", express.static(__dirname + "/public"));
 app.use('/bootstrap-material', express.static(__dirname + '/node_modules/bootstrap-material-design'));
 
 
-app.get('/socket.io.js', (req, res, next) => {
-    return res.sendFile(__dirname + '/node_modules/socket.io-client/dist/socket.io.js');
-});
-
-app.get('/socket.io-file-client.js', (req, res, next) => {
-    return res.sendFile(__dirname + '/node_modules/socket.io-file-client/socket.io-file-client.js');
+app.get('/socket.io-stream.js', (req, res, next) => {
+    return res.sendFile(__dirname + '/node_modules/socket.io-stream/socket.io-stream.js');
 });
 
 
@@ -37,6 +36,13 @@ app.get('/', (req, res) => {
 
 //Socket.io
 io.on('connection', (socket) => {
+
+    //For Streaming files
+    ss(socket).on('file', (stream, data)=> {
+        let filename = __dirname+'/tmp/'+data.name;
+        stream.pipe(fs.createWriteStream(filename));
+    });
+
 
     //on client disconnect
     socket.on('disconnect', () => {
@@ -100,6 +106,7 @@ io.on('connection', (socket) => {
         }
     });
 
+    /*
     let uploader = new SocketIOFile(socket, {
         // uploadDir: {			// multiple directories
         // 	music: 'data/music',
@@ -124,6 +131,7 @@ io.on('connection', (socket) => {
     });
     uploader.on('abort', (fileInfo) => {
     });
+    */
 
 });
 

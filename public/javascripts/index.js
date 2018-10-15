@@ -1,7 +1,8 @@
 $(() => {
-    let socket = io();
+    const socket = io();
 
-    let uploader = new SocketIOFileClient(socket);
+    //let uploader = new SocketIOFileClient(socket);
+
 
     let homeChat = [];
     let userList = {};
@@ -40,16 +41,27 @@ $(() => {
         return false;
     });
 
-    //Start file upload
-    $('#inputFile').change(() => {
-        var fileEl = document.getElementById('inputFile');
-        if (fileEl) {
-            let uploadIds = uploader.upload(fileEl, {
-                data: {/* Arbitrary data... */}
-            });
-        }
-    });
 
+    //Start file upload
+    $('#inputFile').change((e) => {
+        //let fileEl = document.getElementById('inputFile');
+
+        let file = e.target.files[0];
+
+        let stream = ss.createStream();
+
+        // upload a file to the server.
+        ss(socket).emit('file', stream, {name: file.name, size: file.size});
+
+        let blobStream = ss.createBlobReadStream(file);
+        let size = 0;
+
+        blobStream.on('data', (chunk) => {
+            size += chunk.length;
+            $('.progress-bar').css('width', size / file.size * 100 + '%');
+        });
+        blobStream.pipe(stream);
+    });
 
 //Selecting a private chat
     $('#users').on('click', 'button.userElement', (event) => {
@@ -120,29 +132,15 @@ $(() => {
     });
 
 
-//File upload events
-    uploader.on('start', (fileInfo) => {
-        $('#fileChooseTrigger').attr('disabled', true);
-    });
-    uploader.on('stream', (fileInfo) => {
-        if (fileInfo.size > 0) {
-            $('.progress-bar').css('width', fileInfo.sent / fileInfo.size * 100 + '%');
-        }
-    });
-
-    uploader.on('complete', (fileInfo) => {
-        $('.progress-bar').css('width', 100 + '%');
-        $('#fileChooseTrigger').attr('disabled', false);
-        //$('#uploadFinished').show(); //sieht nich so gut aus
-    });
-
-
+//Trigger the file chooser
     $('#fileChooseTrigger').click(() => {
         $('.progress-bar').css('width', 0 + '%');
         $('#uploadFinished').hide();
         $('#inputFile').click();
     });
 
+
+    //Adds a message to the chat
     function appendMessageToChat(messageObj) {
         let chatType;
         if (messageObj.sender !== $('#yourName').text()) {
@@ -170,6 +168,7 @@ $(() => {
         return message;
     }
 
+    //Update the list of users is the chat
     function updateUsers() {
         $('#users').empty();
         Object.entries(userList).forEach(([key, value]) => {  //key => username, value=> {user, messages}
