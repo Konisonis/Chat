@@ -36,13 +36,23 @@ app.get('/', (req, res) => {
 
 //Socket.io
 io.on('connection', (socket) => {
+    ss(socket).on('public file', (stream, data) => {
+
+        Object.entries(connectedUsers).forEach(([key, value]) => { //key => username, value=> socket
+            let outgoingstream = ss.createStream();
+            if (value) {
+                ss(value).emit('public file', outgoingstream, {
+                    sender: value.user,
+                    timeStamp: new Date().toUTCString(),
+                    name: data.name,
+                    size: data.size
+                });
+                stream.pipe(outgoingstream);
+            }
+        });
+    });
 
     //For Streaming files
-    ss(socket).on('public file', (stream, data) => {
-        let outgoingstream = ss.createStream();
-        ss(socket).emit('public file', outgoingstream, {name: data.name, size: data.size});
-        stream.pipe(outgoingstream);
-    });
 
 
     //on client disconnect

@@ -58,8 +58,6 @@ $(() => {
                 $('.progress-bar').css('width', size / file.size * 100 + '%');
             });
             blobStream.pipe(stream);
-
-
         }
     });
 
@@ -143,9 +141,7 @@ $(() => {
             console.log(binaryData);
             let blob = new Blob([new Uint8Array(binaryData)], {type: 'image/jpeg'});
             let imageUrl = URL.createObjectURL(blob);
-            displayPicture(imageUrl);
-
-            // $('#picture').attr('src', file)
+            displayPicture(data.sender, data.timeStamp, imageUrl);
         });
     });
 
@@ -199,17 +195,17 @@ $(() => {
     }
 
 
-    function displayPicture(url) {
+    function displayPicture(sender, timeStamp, url) {
         let message = '';
         message += '<div class="' + "yourmessage" + '">';
 
-        message += '<div class="sender">' + 'Fuu' + '</div>';
+        message += '<div class="sender">' + sender + '</div>';
 
         let picture = '<div class="message"><img id="picture" src="' + url + '"></div>';
         message += picture;
 
 
-        message += '<div class="timestamp">' + 'Fuu' + '</div>';
+        message += '<div class="timestamp">' + timeStamp + '</div>';
         message += '</div>';
         $('#messages').append(message);
     }
