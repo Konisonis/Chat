@@ -38,11 +38,11 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     ss(socket).on('public file', (stream, data) => {
 
-        Object.entries(connectedUsers).forEach(([key, value]) => { //key => username, value=> socket
+        Object.entries(connectedUsers).forEach(([key, userSocket]) => { //key => username, value=> socket
             let outgoingstream = ss.createStream();
-            if (value) {
-                ss(value).emit('public file', outgoingstream, {
-                    sender: value.user,
+            if (userSocket) {
+                ss(userSocket).emit('public file', outgoingstream, {
+                    sender: userSocket.user,
                     timeStamp: new Date().toUTCString(),
                     name: data.name,
                     size: data.size
@@ -124,7 +124,7 @@ function removeUser(socket) {
     if (connectedUsers[socket.user]) {
         delete connectedUsers[socket.user];
         io.emit('user left', socket.user);
-        io.emit('chat message', {timeStamp: new Date().toUTCString(), sender: socket.user, message: 'DISCONNECTED'});
+        io.emit('chat message', {timeStamp: new Date().toUTCString(), sender: socket.user, message: 'DISCONNECTED'}); //TODO not to everyone
     }
 }
 

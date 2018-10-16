@@ -42,17 +42,14 @@ $(() => {
     //Start file upload
     $('#inputFile').change((e) => {
         //let fileEl = document.getElementById('inputFile');
-
         let file = e.target.files[0];
         if (file) {
             let stream = ss.createStream();
             // upload a file to the server.
             ss(socket).emit('public file', stream, {name: file.name, size: file.size});
-
-
             let blobStream = ss.createBlobReadStream(file);
-            let size = 0;
 
+            let size = 0;
             blobStream.on('data', (chunk) => {
                 size += chunk.length;
                 $('.progress-bar').css('width', size / file.size * 100 + '%');
@@ -134,11 +131,9 @@ $(() => {
         let binaryData = [];
 
         stream.on('data', (chunk) => {
-            binaryData.push.apply(binaryData, chunk);
-
+            binaryData.push.apply(binaryData, chunk); //Put pieces together
         });
         stream.on('end', () => {
-            console.log(binaryData);
             let blob = new Blob([new Uint8Array(binaryData)], {type: 'image/jpeg'});
             let imageUrl = URL.createObjectURL(blob);
             displayPicture(data.sender, data.timeStamp, imageUrl);
