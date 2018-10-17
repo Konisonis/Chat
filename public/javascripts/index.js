@@ -79,7 +79,7 @@ $(() => {
         privateChatUser = undefined;
         $('#chatPartner').text('Everyone');
         homeChat.forEach((messageObj) => {
-            appendMessageToChat(messageObj)
+            selectTypeOfMessage(messageObj);
         });
     });
 
@@ -134,9 +134,11 @@ $(() => {
             binaryData.push.apply(binaryData, chunk); //Put pieces together
         });
         stream.on('end', () => {
-            let blob = new Blob([new Uint8Array(binaryData)], {type: 'image/jpeg'});
-            let imageUrl = URL.createObjectURL(blob);
-            displayPicture(data.sender, data.timeStamp, imageUrl);
+            let blob = new Blob([new Uint8Array(binaryData)]);
+            let fileUrl = URL.createObjectURL(blob);
+            let fileObject = {sender: data.sender, timeStamp: data.timeStamp, fileName: data.name, fileURL: fileUrl};
+            appendMessageToChat(fileObject);
+            homeChat.push(fileObject);
         });
     });
 
@@ -151,6 +153,7 @@ $(() => {
     //Adds a message to the chat
     function appendMessageToChat(messageObj) {
         let chatType;
+
         if (messageObj.sender !== $('#yourName').text()) {
             chatType = "usermessage";
         } else {
@@ -158,7 +161,7 @@ $(() => {
         }
         let messages = $('#messages');
 
-        messages.append(createMessageHtml(messageObj, chatType));
+        messages.append(selectTypeOfMessage(messageObj, chatType));
         messages.scrollTop(messages[0].scrollHeight);
     }
 
@@ -189,22 +192,29 @@ $(() => {
         });
     }
 
-
-    function displayPicture(sender, timeStamp, url) {
+    //Assemble image tag
+    function displayPicture(messageObj,chatType) {
         let message = '';
-        message += '<div class="' + "yourmessage" + '">';
-
-        message += '<div class="sender">' + sender + '</div>';
-
-        let picture = '<div class="message"><img id="picture" src="' + url + '"></div>';
+        message += '<div class="' + chatType + '">';
+        if (chatType !== "yourmessage") {
+            message += '<div class="sender">' + messageObj.sender + '</div>';
+        }
+        let picture = '<div class="message">' +
+            '<img alt="'+messageObj.name+'" id="picture" src="' + messageObj.fileURL + '" ></div>';
         message += picture;
-
-
-        message += '<div class="timestamp">' + timeStamp + '</div>';
+        message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
         message += '</div>';
         $('#messages').append(message);
     }
 
+    function selectTypeOfMessage(messageObj,chatType) {
+        if (messageObj.message) {
+            createMessageHtml(messageObj,chatType)
+        }
+        else if (messageObj.fileURL) {
+            displayPicture(messageObj,chatType);
+        }
+    }
 
 })
 ;

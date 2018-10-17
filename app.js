@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
             let outgoingstream = ss.createStream();
             if (userSocket) {
                 ss(userSocket).emit('public file', outgoingstream, {
-                    sender: userSocket.user,
+                    sender: socket.user,
                     timeStamp: new Date().toUTCString(),
                     name: data.name,
                     size: data.size
