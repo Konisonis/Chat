@@ -79,7 +79,7 @@ $(() => {
         privateChatUser = undefined;
         $('#chatPartner').text('Everyone');
         homeChat.forEach((messageObj) => {
-            selectTypeOfMessage(messageObj);
+            appendMessageToChat(messageObj);
         });
     });
 
@@ -161,7 +161,7 @@ $(() => {
         }
         let messages = $('#messages');
 
-        messages.append(selectTypeOfMessage(messageObj, chatType));
+        selectTypeOfMessage(messageObj, chatType);
         messages.scrollTop(messages[0].scrollHeight);
     }
 
@@ -176,7 +176,7 @@ $(() => {
         message += '<div class="message">' + messageObj.message + '</div>';
         message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
         message += '</div>';
-        return message;
+        $('#messages').append(message);
     }
 
     //Update the list of users is the chat
