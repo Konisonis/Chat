@@ -36,12 +36,28 @@ app.get('/', (req, res) => {
 
 //Socket.io
 io.on('connection', (socket) => {
+    //receiving a public file
     ss(socket).on('public file', (stream, data) => {
-
         Object.entries(connectedUsers).forEach(([key, userSocket]) => { //key => username, value=> socket
             let outgoingstream = ss.createStream();
             if (userSocket) {
                 ss(userSocket).emit('public file', outgoingstream, {
+                    sender: socket.user,
+                    timeStamp: new Date().toUTCString(),
+                    name: data.name,
+                    size: data.size
+                });
+                stream.pipe(outgoingstream);
+            }
+        });
+    });
+
+    //receiving a private file
+    ss(socket).on('private file', (stream, data) => {
+        Object.entries(connectedUsers).forEach(([key, userSocket]) => { //key => username, value=> socket
+            let outgoingstream = ss.createStream();
+            if (userSocket) {
+                ss(userSocket).emit('private file', outgoingstream, {
                     sender: socket.user,
                     timeStamp: new Date().toUTCString(),
                     name: data.name,

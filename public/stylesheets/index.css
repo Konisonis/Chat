@@ -70,10 +70,10 @@ button {
 }
 
 #messages div {
+    max-width: 70%;
     font-size: 10pt;
     overflow: auto;
     width: max-content;
-    word-break: break-all; /* wrap extended text*/
 }
 
 #messages div.usermessage {
@@ -102,8 +102,11 @@ button {
     float: right;
 }
 
-#chat {
+img#picture {
+    max-width: inherit;
+}
 
+#chat {
     display: none;
 }
 

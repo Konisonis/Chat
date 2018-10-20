@@ -30,7 +30,7 @@ $(() => {
         //private chat
         if (privateChatUser) {
             socket.emit('private message', $('#m').val(), privateChatUser);
-            //public chat
+        //public chat
         } else {
             socket.emit('chat message', $('#m').val());
         }
@@ -46,7 +46,11 @@ $(() => {
         if (file) {
             let stream = ss.createStream();
             // upload a file to the server.
-            ss(socket).emit('public file', stream, {name: file.name, size: file.size});
+            if (privateChatUser) {
+                ss(socket).emit('private file', stream, {name: file.name, size: file.size});
+            }else{
+                ss(socket).emit('public file', stream, {name: file.name, size: file.size});
+            }
             let blobStream = ss.createBlobReadStream(file);
 
             let size = 0;
@@ -58,12 +62,11 @@ $(() => {
         }
     });
 
-//Selecting a private chat
+    //Selecting a private chat
     $('#users').on('click', 'button.userElement', (event) => {
         privateChatUser = $(event.target).val();
         $('#chatPartner').text(privateChatUser);
         let privateChat = userList[privateChatUser].messages;
-
 
         if (privateChat) {
             $('#messages').empty();
@@ -73,7 +76,7 @@ $(() => {
         }
     });
 
-//Selecting the home chat
+    //Selecting the home chat
     $('#homeChat').click(() => {
         $('#messages').empty();
         privateChatUser = undefined;
@@ -84,34 +87,15 @@ $(() => {
     });
 
 
-//Receiving a message
+    //Receiving a message
     socket.on('chat message', (messageObj = {timeStamp, sender, message}) => {
         homeChat.push(messageObj);
         appendMessageToChat(messageObj);
     });
 
-//Receiving an updated user list
-    socket.on('user list', (users) => {  //users = [userName1, userName2]
-        $('#users').empty();
-        users.forEach((user) => {
-            userList[user] = {user: user, messages: []};
-        });
-        updateUsers();
-    });
 
-    socket.on('user joined', (user) => {
-        userList[user] = {user: user, messages: []};
-        updateUsers();
-    });
-
-    socket.on('user left', (user) => {
-        delete userList[user];  // Remove key from json object
-        updateUsers();
-    });
-
-//receiving a private message
+    //receiving a private message
     socket.on('private message', (messageObj = {timeStamp, sender, receiver, message}) => {
-
 
         if (userList[messageObj.sender]) {
             userList[messageObj.sender].messages.push(messageObj);
@@ -122,11 +106,11 @@ $(() => {
         if (privateChatUser === messageObj.sender || (privateChatUser === messageObj.receiver && messageObj.sender === $('#yourName').text())) {
             appendMessageToChat(messageObj);
         } else {
-
+            //nothing
         }
     });
 
-    //receiving a file
+    //receiving a public file
     ss(socket).on('public file', (stream, data) => {
         let binaryData = [];
 
@@ -142,7 +126,32 @@ $(() => {
         });
     });
 
-//Trigger the file chooser
+    //receiving a private file
+    ss(socket).on('private file', (stream, data) => {
+        let binaryData = [];
+
+        stream.on('data', (chunk) => {
+            binaryData.push.apply(binaryData, chunk); //Put pieces together
+        });
+        stream.on('end', () => {
+            let blob = new Blob([new Uint8Array(binaryData)]);
+            let fileUrl = URL.createObjectURL(blob);
+            let fileObject = {sender: data.sender, timeStamp: data.timeStamp, fileName: data.name, fileURL: fileUrl};
+
+            if (userList[fileObject.sender]) {
+                userList[fileObject.sender].messages.push(fileObject);
+            } else if (userList[fileObject.receiver]) {
+                userList[fileObject.receiver].messages.push(fileObject);
+            }
+            //print message if chat is open
+            if (privateChatUser === fileObject.sender || (privateChatUser === fileObject.receiver && fileObject.sender === $('#yourName').text())) {
+                appendMessageToChat(fileObject);
+            } else {
+            }
+        });
+    });
+
+    //Trigger the file chooser
     $('#fileChooseTrigger').click(() => {
         $('.progress-bar').css('width', 0 + '%');
         $('#uploadFinished').hide();
@@ -165,6 +174,15 @@ $(() => {
         messages.scrollTop(messages[0].scrollHeight);
     }
 
+    //detects whether the message is a file or text
+    function selectTypeOfMessage(messageObj,chatType) {
+        if (messageObj.message) {
+            createMessageHtml(messageObj,chatType)
+        }
+        else if (messageObj.fileURL) {
+            displayPicture(messageObj,chatType);
+        }
+    }
 
     //Creates a message html element with all information it needs
     function createMessageHtml(messageObj, chatType) {
@@ -174,6 +192,21 @@ $(() => {
             message += '<div class="sender">' + messageObj.sender + '</div>';
         }
         message += '<div class="message">' + messageObj.message + '</div>';
+        message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
+        message += '</div>';
+        $('#messages').append(message);
+    }
+
+    //Assemble image tag
+    function displayPicture(messageObj,chatType) {
+        let message = '';
+        message += '<div class="' + chatType + '">';
+        if (chatType !== "yourmessage") {
+            message += '<div class="sender">' + messageObj.sender + '</div>';
+        }
+        let picture = '<div class="message">' +
+            '<img alt="'+messageObj.name+'" id="picture" src="' + messageObj.fileURL + '" ></div>';
+        message += picture;
         message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
         message += '</div>';
         $('#messages').append(message);
@@ -192,29 +225,24 @@ $(() => {
         });
     }
 
-    //Assemble image tag
-    function displayPicture(messageObj,chatType) {
-        let message = '';
-        message += '<div class="' + chatType + '">';
-        if (chatType !== "yourmessage") {
-            message += '<div class="sender">' + messageObj.sender + '</div>';
-        }
-        let picture = '<div class="message">' +
-            '<img alt="'+messageObj.name+'" id="picture" src="' + messageObj.fileURL + '" ></div>';
-        message += picture;
-        message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
-        message += '</div>';
-        $('#messages').append(message);
-    }
+    //Receiving an updated user list
+    socket.on('user list', (users) => {  //users = [userName1, userName2]
+        $('#users').empty();
+        users.forEach((user) => {
+            userList[user] = {user: user, messages: []};
+        });
+        updateUsers();
+    });
 
-    function selectTypeOfMessage(messageObj,chatType) {
-        if (messageObj.message) {
-            createMessageHtml(messageObj,chatType)
-        }
-        else if (messageObj.fileURL) {
-            displayPicture(messageObj,chatType);
-        }
-    }
+    socket.on('user joined', (user) => {
+        userList[user] = {user: user, messages: []};
+        updateUsers();
+    });
+
+    socket.on('user left', (user) => {
+        delete userList[user];  // Remove key from json object
+        updateUsers();
+    });
 
 })
 ;
