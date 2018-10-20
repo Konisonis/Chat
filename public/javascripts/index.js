@@ -6,7 +6,6 @@ $(() => {
 
     let privateChatUser;
 
-
     //Log in with user name
     $('#loginForm').submit(() => {
             socket.emit('login', $('#user').val(), (ok) => {
@@ -38,7 +37,6 @@ $(() => {
         return false;
     });
 
-
     //Start file upload
     $('#inputFile').change((e) => {
         //let fileEl = document.getElementById('inputFile');
@@ -62,41 +60,14 @@ $(() => {
         }
     });
 
-    //Selecting a private chat
-    $('#users').on('click', 'button.userElement', (event) => {
-        privateChatUser = $(event.target).val();
-        $('#chatPartner').text(privateChatUser);
-        let privateChat = userList[privateChatUser].messages;
-
-        if (privateChat) {
-            $('#messages').empty();
-            privateChat.forEach((messageObj) => { //data=> {sender,message}
-                appendMessageToChat(messageObj);
-            });
-        }
-    });
-
-    //Selecting the home chat
-    $('#homeChat').click(() => {
-        $('#messages').empty();
-        privateChatUser = undefined;
-        $('#chatPartner').text('Everyone');
-        homeChat.forEach((messageObj) => {
-            appendMessageToChat(messageObj);
-        });
-    });
-
-
     //Receiving a message
     socket.on('chat message', (messageObj = {timeStamp, sender, message}) => {
         homeChat.push(messageObj);
         appendMessageToChat(messageObj);
     });
 
-
     //receiving a private message
     socket.on('private message', (messageObj = {timeStamp, sender, receiver, message}) => {
-
         if (userList[messageObj.sender]) {
             userList[messageObj.sender].messages.push(messageObj);
         } else if (userList[messageObj.receiver]) {
@@ -143,7 +114,7 @@ $(() => {
             } else if (userList[fileObject.receiver]) {
                 userList[fileObject.receiver].messages.push(fileObject);
             }
-            //print message if chat is open
+            //print file if chat is open
             if (privateChatUser === fileObject.sender || (privateChatUser === fileObject.receiver && fileObject.sender === $('#yourName').text())) {
                 appendMessageToChat(fileObject);
             } else {
@@ -156,6 +127,30 @@ $(() => {
         $('.progress-bar').css('width', 0 + '%');
         $('#uploadFinished').hide();
         $('#inputFile').click();
+    });
+
+    //Selecting a private chat
+    $('#users').on('click', 'button.userElement', (event) => {
+        privateChatUser = $(event.target).val();
+        $('#chatPartner').text(privateChatUser);
+        let privateChat = userList[privateChatUser].messages;
+
+        if (privateChat) {
+            $('#messages').empty();
+            privateChat.forEach((messageObj) => { //data=> {sender,message}
+                appendMessageToChat(messageObj);
+            });
+        }
+    });
+
+    //Selecting the home chat
+    $('#homeChat').click(() => {
+        $('#messages').empty();
+        privateChatUser = undefined;
+        $('#chatPartner').text('Everyone');
+        homeChat.forEach((messageObj) => {
+            appendMessageToChat(messageObj);
+        });
     });
 
 
