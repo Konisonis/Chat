@@ -45,9 +45,9 @@ $(() => {
             let stream = ss.createStream();
             // upload a file to the server.
             if (privateChatUser) {
-                ss(socket).emit('private file', stream, {name: file.name, size: file.size});
+                ss(socket).emit('private file', stream, {name: file.name, size: file.size, type: file.type});
             }else{
-                ss(socket).emit('public file', stream, {name: file.name, size: file.size});
+                ss(socket).emit('public file', stream, {name: file.name, size: file.size, type: file.type});
             }
             let blobStream = ss.createBlobReadStream(file);
 
@@ -91,9 +91,9 @@ $(() => {
         stream.on('end', () => {
             let blob = new Blob([new Uint8Array(binaryData)]);
             let fileUrl = URL.createObjectURL(blob);
-            let fileObject = {sender: data.sender, timeStamp: data.timeStamp, fileName: data.name, fileURL: fileUrl};
-            appendMessageToChat(fileObject);
-            homeChat.push(fileObject);
+            let fileObject = {sender: data.sender, timeStamp: data.timeStamp, fileName: data.name, fileURL: fileUrl, type: data.type};
+                appendMessageToChat(fileObject);
+                homeChat.push(fileObject);
         });
     });
 
@@ -107,7 +107,7 @@ $(() => {
         stream.on('end', () => {
             let blob = new Blob([new Uint8Array(binaryData)]);
             let fileUrl = URL.createObjectURL(blob);
-            let fileObject = {sender: data.sender, timeStamp: data.timeStamp, fileName: data.name, fileURL: fileUrl};
+            let fileObject = {sender: data.sender, timeStamp: data.timeStamp, fileName: data.name, fileURL: fileUrl, type: data.type};
 
             if (userList[fileObject.sender]) {
                 userList[fileObject.sender].messages.push(fileObject);
@@ -174,8 +174,10 @@ $(() => {
         if (messageObj.message) {
             createMessageHtml(messageObj,chatType)
         }
-        else if (messageObj.fileURL) {
+        else if (messageObj.type.toString().includes("image/")) {
             displayPicture(messageObj,chatType);
+        }else if(messageObj.fileURL){
+            displayDownload(messageObj,chatType);
         }
     }
 
@@ -200,7 +202,21 @@ $(() => {
             message += '<div class="sender">' + messageObj.sender + '</div>';
         }
         let picture = '<div class="message">' +
-            '<img alt="'+messageObj.name+'" id="picture" src="' + messageObj.fileURL + '" ></div>';
+            '<img alt="'+messageObj.fileName+'" id="picture" src="' + messageObj.fileURL + '" ></div>';
+        message += picture;
+        message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
+        message += '</div>';
+        $('#messages').append(message);
+    }
+
+    function displayDownload(messageObj,chatType) {
+        let message = '';
+        message += '<div class="' + chatType + '">';
+        if (chatType !== "yourmessage") {
+            message += '<div class="sender">' + messageObj.sender + '</div>';
+        }
+        let picture = '<div class="message">' +
+            '<a href="' + messageObj.fileURL + '" download="' + messageObj.fileName + '">' + messageObj.fileName + '</a></div>';
         message += picture;
         message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
         message += '</div>';

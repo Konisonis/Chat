@@ -5,6 +5,7 @@ const io = require('socket.io')(http);
 
 const ss = require('socket.io-stream');
 const path = require('path');
+const mime = require('mime-types');
 var fs = require('fs');
 
 
@@ -36,6 +37,7 @@ app.get('/', (req, res) => {
 
 //Socket.io
 io.on('connection', (socket) => {
+
     //receiving a public file
     ss(socket).on('public file', (stream, data) => {
         Object.entries(connectedUsers).forEach(([key, userSocket]) => { //key => username, value=> socket
@@ -45,7 +47,8 @@ io.on('connection', (socket) => {
                     sender: socket.user,
                     timeStamp: new Date().toUTCString(),
                     name: data.name,
-                    size: data.size
+                    size: data.size,
+                    type: data.type
                 });
                 stream.pipe(outgoingstream);
             }
@@ -61,7 +64,8 @@ io.on('connection', (socket) => {
                     sender: socket.user,
                     timeStamp: new Date().toUTCString(),
                     name: data.name,
-                    size: data.size
+                    size: data.size,
+                    type: data.type
                 });
                 stream.pipe(outgoingstream);
             }
