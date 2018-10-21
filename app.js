@@ -5,7 +5,6 @@ const io = require('socket.io')(http);
 
 const ss = require('socket.io-stream');
 const path = require('path');
-const mime = require('mime-types');
 var fs = require('fs');
 
 

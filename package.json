@@ -12,8 +12,6 @@
   "dependencies": {
     "bootstrap-material-design": "^4.1.1",
     "express": "~4.16.0",
-    "file-type": "^10.0.0",
-    "mime-types": "^2.1.21",
     "socket.io": "^2.1.1",
     "socket.io-stream": "^0.9.1"
   }
