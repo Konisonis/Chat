@@ -60,6 +60,10 @@ button {
 
 }
 
+input:focus{
+    outline: none;
+}
+
 #messages {
     padding: 5px 5px;
     height: 420px;
