@@ -149,8 +149,8 @@ img#picture {
 }
 
 .progress {
-    height: 20px;
-    width: 100%;
+    height: 7px;
+    width: 79%;
 }
 
 #uploadFinished {

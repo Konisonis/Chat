@@ -117,6 +117,8 @@ $(() => {
             appendMessageToChat(fileObject);
             //add message to the home chat
             homeChat.push(fileObject);
+
+            $('.progress-bar').attr('class', 'progress-bar');
         });
     });
 
@@ -139,23 +141,33 @@ $(() => {
                 receiver: data.receiver
             };
 
-            //Add message to correct user messages
-            if (userList[fileObject.sender]) {
-                userList[fileObject.sender].messages.push(fileObject);
-            } else if (userList[fileObject.receiver]) {
-                userList[fileObject.receiver].messages.push(fileObject);
+            let senderChatIsOpen = privateChatUser === fileObject.sender;   //TODO double code
+            let ownMessageAndChatIsOpen = privateChatUser === fileObject.receiver;
+
+            let user = fileObject.sender;
+
+            //Check wether i'm the sender or the receiver
+            if (userList[user]) {
+                userList[user].messages.push(fileObject);
+            } else{
+                user = fileObject.receiver;
+                userList[user].messages.push(fileObject);
+            }
+            //print message if chat is open
+            if (senderChatIsOpen || ownMessageAndChatIsOpen) {
+                appendMessageToChat(fileObject);
+            }else{
+                showNewMessageIcon(user);
             }
 
-            //print file if chat is open
-            if (privateChatUser === fileObject.sender || (privateChatUser === fileObject.receiver && fileObject.sender === $('#yourName').text())) {
-                appendMessageToChat(fileObject);
-            }
+            $('.progress-bar').attr('class', 'progress-bar');
         });
     });
 
     //Trigger the file chooser
     $('#fileChooseTrigger').click(() => {
         $('.progress-bar').css('width', 0 + '%');
+        $('.progress-bar').addClass('progress-bar-striped progress-bar-animated');
         $('#uploadFinished').hide();
         $('#inputFile').click();
     });
@@ -186,6 +198,8 @@ $(() => {
             appendMessageToChat(messageObj);
         });
     });
+
+
 
 
     //Adds a message to the chat
