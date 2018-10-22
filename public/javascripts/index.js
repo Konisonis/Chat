@@ -195,56 +195,28 @@ $(() => {
     //detects whether the message is a file or text
     function selectTypeOfMessage(messageObj, chatType) {
         if (messageObj.message) {
-            createMessageHtml(messageObj, chatType)
+            createMessageHtml(messageObj, chatType,'<div class="message">' + messageObj.message + '</div>')
         }
         else if (messageObj.type.toString().includes("image/")) {
-            displayPicture(messageObj, chatType);
+            createMessageHtml(messageObj, chatType,'<div><img alt="' + messageObj.fileName + '" id="picture" src="' + messageObj.fileURL + '" ></div>');
         } else if (messageObj.fileURL) {
-            displayDownload(messageObj, chatType);
+            createMessageHtml(messageObj, chatType,'<a href="' + messageObj.fileURL + '" download="' + messageObj.fileName + '">' + messageObj.fileName + '</a></div>');
         }
     }
 
     //Creates a message html element with all information it needs
-    function createMessageHtml(messageObj, chatType) {
+    function createMessageHtml(messageObj, chatType,htmlTag) {
         let message = '';
         message += '<div class="' + chatType + '">';
         if (chatType !== "yourmessage") {
             message += '<div class="sender">' + messageObj.sender + '</div>';
         }
-        message += '<div class="message">' + messageObj.message + '</div>';
+        message += htmlTag;
         message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
         message += '</div>';
         $('#messages').append(message);
     }
 
-    //Assemble image tag
-    function displayPicture(messageObj, chatType) {
-        let message = '';
-        message += '<div class="' + chatType + '">';
-        if (chatType !== "yourmessage") {
-            message += '<div class="sender">' + messageObj.sender + '</div>';
-        }
-        let picture = '<div class="message">' +
-            '<img alt="' + messageObj.fileName + '" id="picture" src="' + messageObj.fileURL + '" ></div>';
-        message += picture;
-        message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
-        message += '</div>';
-        $('#messages').append(message);
-    }
-
-    function displayDownload(messageObj, chatType) {
-        let message = '';
-        message += '<div class="' + chatType + '">';
-        if (chatType !== "yourmessage") {
-            message += '<div class="sender">' + messageObj.sender + '</div>';
-        }
-        let picture = '<div class="message">' +
-            '<a href="' + messageObj.fileURL + '" download="' + messageObj.fileName + '">' + messageObj.fileName + '</a></div>';
-        message += picture;
-        message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
-        message += '</div>';
-        $('#messages').append(message);
-    }
 
     //Update the list of users is the chat
     function updateUsers() {
