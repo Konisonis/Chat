@@ -200,7 +200,7 @@ $(() => {
         else if (messageObj.type.toString().includes("image/")) {
             createMessageHtml(messageObj, chatType,'<div><img alt="' + messageObj.fileName + '" id="picture" src="' + messageObj.fileURL + '" ></div>');
         } else if (messageObj.fileURL) {
-            createMessageHtml(messageObj, chatType,'<a href="' + messageObj.fileURL + '" download="' + messageObj.fileName + '">' + messageObj.fileName + '</a></div>');
+            createMessageHtml(messageObj, chatType,'<div><a href="' + messageObj.fileURL + '" download="' + messageObj.fileName + '">' + messageObj.fileName + '</a></div>');
         }
     }
 
