@@ -4,9 +4,6 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
 const ss = require('socket.io-stream');
-const path = require('path');
-var fs = require('fs');
-
 
 //contains Sockets for quick access with username
 let connectedUsers = {};
@@ -57,16 +54,19 @@ io.on('connection', (socket) => {
     //receiving a private file
     ss(socket).on('private file', (stream, data) => {
         Object.entries(connectedUsers).forEach(([key, userSocket]) => { //key => username, value=> socket
-            let outgoingstream = ss.createStream();
-            if (userSocket) {
-                ss(userSocket).emit('private file', outgoingstream, {
-                    sender: socket.user,
-                    timeStamp: new Date().toUTCString(),
-                    name: data.name,
-                    size: data.size,
-                    type: data.type
-                });
-                stream.pipe(outgoingstream);
+            if (key === data.receiver || key === socket.user) {
+                let outgoingstream = ss.createStream();
+                if (userSocket) {
+                    ss(userSocket).emit('private file', outgoingstream, {
+                        sender: socket.user,
+                        timeStamp: new Date().toUTCString(),
+                        name: data.name,
+                        size: data.size,
+                        type: data.type,
+                        receiver:data.receiver
+                    });
+                    stream.pipe(outgoingstream);
+                }
             }
         });
     });
