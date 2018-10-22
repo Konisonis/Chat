@@ -39,11 +39,11 @@ $(() => {
 
     //Start file upload
     $('#inputFile').change((e) => {
-        //let fileEl = document.getElementById('inputFile');
         let file = e.target.files[0];
         if (file) {
             let stream = ss.createStream();
-            // upload a file to the server.
+
+            // upload a private file to the server.
             if (privateChatUser) {
                 ss(socket).emit('private file', stream, {
                     receiver: privateChatUser,
@@ -52,11 +52,12 @@ $(() => {
                     type: file.type
                 });
             } else {
+                // upload a public file to the server.
                 ss(socket).emit('public file', stream, {name: file.name, size: file.size, type: file.type});
             }
             let blobStream = ss.createBlobReadStream(file);
 
-            //Handle progress bar
+            //Update progress bar
             let size = 0;
             blobStream.on('data', (chunk) => {
                 size += chunk.length;
@@ -75,18 +76,23 @@ $(() => {
     //receiving a private message
     socket.on('private message', (messageObj = {timeStamp, sender, receiver, message}) => {
 
-        console.log(userList[messageObj.receiver]);
-        console.log(userList[messageObj.sender]);
+        let senderChatIsOpen = privateChatUser === messageObj.sender;
+        let ownMessageAndChatIsOpen = privateChatUser === messageObj.receiver;
 
+        let user = messageObj.sender;
 
-        if (userList[messageObj.sender]) {
-            userList[messageObj.sender].messages.push(messageObj);
-        } else if (userList[messageObj.receiver]) {
-            userList[messageObj.receiver].messages.push(messageObj);
+        //Check wether i'm the sender or the receiver
+        if (userList[user]) {
+            userList[user].messages.push(messageObj);
+        } else{
+            user = messageObj.receiver;
+            userList[user].messages.push(messageObj);
         }
         //print message if chat is open
-        if (privateChatUser === messageObj.sender || (privateChatUser === messageObj.receiver && messageObj.sender === $('#yourName').text())) {
+        if (senderChatIsOpen || ownMessageAndChatIsOpen) {
             appendMessageToChat(messageObj);
+        }else{
+            showNewMessageIcon(user);
         }
     });
 
@@ -107,7 +113,9 @@ $(() => {
                 fileURL: fileUrl,
                 type: data.type
             };
+            //Print message
             appendMessageToChat(fileObject);
+            //add message to the home chat
             homeChat.push(fileObject);
         });
     });
@@ -131,7 +139,7 @@ $(() => {
                 receiver: data.receiver
             };
 
-
+            //Add message to correct user messages
             if (userList[fileObject.sender]) {
                 userList[fileObject.sender].messages.push(fileObject);
             } else if (userList[fileObject.receiver]) {
@@ -157,6 +165,9 @@ $(() => {
         privateChatUser = $(event.target).val();
         $('#chatPartner').text(privateChatUser);
         let privateChat = userList[privateChatUser].messages;
+
+        //hide new_message icon
+        hideNewMessageIcon(privateChatUser);
 
         if (privateChat) {
             $('#messages').empty();
@@ -222,13 +233,27 @@ $(() => {
     function updateUsers() {
         $('#users').empty();
         Object.entries(userList).forEach(([key, value]) => {  //key => username, value=> {user, messages}
-            if (value.user !== $('#yourName').text()) {
-                $('#users').append('<li><i class="material-icons">face</i>\n<button type="button" class="userElement btn btn-primary" value="' + value.user + '">\n' +
+            if (key !== $('#yourName').text()) {
+                $('#users').append('<li><i class="material-icons">face</i>\n<button type="button" class="userElement btn btn-primary" value="' + key + '">\n' +
                     '                    ' + value.user + '<span class="badge badge-light"></span>\n' +
-                    '                    <span class="sr-only"></span>\n' +
+                    '                    <span class="sr-only"></span><i style="display:none;" title="'+key+'" class="material-icons newMessage">new_releases</i>\n' +
                     '                </button></li>');
             }
         });
+    }
+    //Show the user that he received a new private message
+    function showNewMessageIcon(user){
+        if(privateChatUser !== user){
+            let element =$(".newMessage[title='"+user+"']");
+            element.show();
+
+        }
+    }
+
+    function hideNewMessageIcon(user){
+        let element =$(".newMessage[title='"+user+"']");
+        element.hide();
+
     }
 
     //Receiving an updated user list
