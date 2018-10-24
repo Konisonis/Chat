@@ -1,3 +1,9 @@
+/*
+* Authors:
+* "Robin Schramm 761392",
+  "Konstantin Rosenberg 761385"
+* */
+
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
