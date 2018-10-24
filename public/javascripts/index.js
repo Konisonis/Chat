@@ -1,3 +1,9 @@
+/*
+* Authors:
+* "Robin Schramm 761392",
+  "Konstantin Rosenberg 761385"
+* */
+
 $(() => {
     const socket = io();
 
