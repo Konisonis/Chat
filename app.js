@@ -5,26 +5,21 @@ const io = require('socket.io')(http);
 
 const ss = require('socket.io-stream');
 
-//contains Sockets for quick access with username
+//table to access sockets with username ==> {username:socket}
 let connectedUsers = {};
 
 
 //enable access to the public folder and simplify node modules paths
 app.use("/public", express.static(__dirname + "/public"));
-
 app.use('/bootstrap-material', express.static(__dirname + '/node_modules/bootstrap-material-design'));
 
 
 app.get('/socket.io-stream.js', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/socket.io-stream/socket.io-stream.js');
 });
-
-
 app.get('/bootstrap-icons.scss', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/material-icons/iconfont/material-icons.scss');
 });
-
-
 //routes
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
@@ -33,6 +28,39 @@ app.get('/', (req, res) => {
 
 //Socket.io
 io.on('connection', (socket) => {
+
+    //-------------------handle login and logout
+
+    //new client log-in
+    socket.on('login', (username, callback) => {
+        //if username is already taken
+        try {
+            //username already in use, the user is already logged in or not valid
+            if (connectedUsers[username] || socket.user || !username) {
+                callback(false);
+                //if username is accepted and login was successful
+            } else {
+                socket.user = username;
+                //tell the client then login was successful
+                callback(true);
+                connectedUsers[username] = socket;
+                userConnects(username);
+
+                socket.emit('user list', createListWithUserNames());
+                socket.broadcast.emit('user joined', username);
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
+    });
+
+    //on client disconnect
+    socket.on('disconnect', () => {
+        removeUser(socket);
+    });
+
+    //-------------------Streaming files
 
     //receiving a public file
     ss(socket).on('public file', (stream, data) => {
@@ -71,38 +99,7 @@ io.on('connection', (socket) => {
         });
     });
 
-    //For Streaming files
-
-
-    //on client disconnect
-    socket.on('disconnect', () => {
-        removeUser(socket);
-    });
-
-    //new client log-in
-    socket.on('login', (username, callback) => {
-        //if username is already taken
-        try {
-            if (connectedUsers[username] || socket.user || !username) {
-                callback(false);
-                //if username is accepted and login was successful
-            } else {
-                socket.user = username;
-                callback(true);
-                connectedUsers[username] = socket;
-                io.emit('chat message', {           //TODO not for everyone!!!
-                    timeStamp: new Date().toUTCString(),
-                    sender: socket.user,
-                    message: 'CONNECTED'
-                });
-                socket.emit('user list', createListWithUserNames());
-                socket.broadcast.emit('user joined', username);
-            }
-        }
-        catch (err) {
-            console.log(err);
-        }
-    });
+    //-------------------handle messages
 
     //receiving a chat message
     socket.on('chat message', (message) => {
@@ -141,13 +138,31 @@ io.on('connection', (socket) => {
 
 });
 
+//remove Socket from connectedUsers JSON-Object
 function removeUser(socket) {
-    //remove Socket from connectedUsers JSON
     if (connectedUsers[socket.user]) {
         delete connectedUsers[socket.user];
-        io.emit('user left', socket.user);
-        io.emit('chat message', {timeStamp: new Date().toUTCString(), sender: socket.user, message: 'DISCONNECTED'}); //TODO not to everyone
+        userDisconnects(socket.user);
     }
+}
+
+//notfy clinets that a user has disconnected
+function userDisconnects(user){
+    Object.entries(connectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
+        if(socket){
+            socket.emit('user left', socket.user);
+            socket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: 'DISCONNECTED'}); //TODO put 'user left' and chat message togehter
+        }
+    });
+}
+
+//notify clients that a new user has connected
+function userConnects(user){
+    Object.entries(connectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
+        if(socket){
+            socket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: 'CONNECTED'});
+        }
+    });
 }
 
 function createListWithUserNames() {
@@ -155,10 +170,8 @@ function createListWithUserNames() {
     Object.entries(connectedUsers).forEach(([key, value]) => { //key => username, value=> socket
         list.push(key);
     });
-
     return list;
 }
-
 
 //starts server on part 3000
 http.listen(3000, () => {
