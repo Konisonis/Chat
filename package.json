@@ -4,6 +4,10 @@
     "Robin Schramm 761392",
     "Konstantin Rosenberg 761385"
   ],
+  "engines": {
+    "node": "8.11.3",
+    "npm": "5.6.0"
+  },
   "version": "0.0.0",
   "private": true,
   "scripts": {

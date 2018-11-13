@@ -1,0 +1,5 @@
+---
+applications:
+- name: modest-pare
+  memory: 512M
+  instances: 1
