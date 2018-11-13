@@ -1,5 +1,5 @@
 ---
 applications:
-- name: modest-pare
+- name: hallo-welt
   memory: 512M
   instances: 1
