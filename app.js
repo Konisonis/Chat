@@ -7,6 +7,7 @@
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
+var https = require("https");
 const io = require('socket.io')(http);
 
 const ss = require('socket.io-stream');
@@ -97,7 +98,7 @@ io.on('connection', (socket) => {
                         name: data.name,
                         size: data.size,
                         type: data.type,
-                        receiver:data.receiver
+                        receiver: data.receiver
                     });
                     stream.pipe(outgoingstream);
                 }
@@ -110,12 +111,12 @@ io.on('connection', (socket) => {
     //receiving a chat message
     socket.on('chat message', (message) => {
         let user = socket.user;
-        let msg = message;
+        getMood(message);
         if (socket.user && message) {
             Object.entries(connectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
                 let userSocket = connectedUsers[key];
                 if (userSocket) {
-                    userSocket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: msg}); // Only sends message to logged in users not to all
+                    userSocket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: message}); // Only sends message to logged in users not to all
                 }
             });
         }
@@ -140,8 +141,6 @@ io.on('connection', (socket) => {
     });
 
 
-
-
 });
 
 //remove Socket from connectedUsers JSON-Object
@@ -153,9 +152,9 @@ function removeUser(socket) {
 }
 
 //notfy clinets that a user has disconnected
-function userDisconnects(user){
+function userDisconnects(user) {
     Object.entries(connectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
-        if(socket){
+        if (socket) {
             socket.emit('user left', socket.user);
             socket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: 'DISCONNECTED'}); //TODO put 'user left' and chat message togehter
         }
@@ -163,9 +162,9 @@ function userDisconnects(user){
 }
 
 //notify clients that a new user has connected
-function userConnects(user){
+function userConnects(user) {
     Object.entries(connectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
-        if(socket){
+        if (socket) {
             socket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: 'CONNECTED'});
         }
     });
@@ -179,9 +178,46 @@ function createListWithUserNames() {
     return list;
 }
 
+function getMood(text) {
+    let options = {
+        "method": "POST",
+        "hostname":
+            "peaceful-morse.eu-de.mybluemix.net",
+        "path": [
+            "tone"
+        ],
+        "headers": {
+            "Content-Type": "application/json",
+            "cache-control": "no-cache",
+            "Postman-Token": "86b5ff66-dd88-4c0f-a537-94ddc842c919"
+        }
+    };
+
+    let req = https.request(options,  (res)=> {
+        let chunks = [];
+
+        res.on("data", (chunk)=> {
+            chunks.push(chunk);
+        });
+
+        res.on("end", () =>{
+            let body = Buffer.concat(chunks);
+
+            Object.entries(connectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
+                if (socket) {
+                    socket.emit('chat message', {timeStamp: new Date().toUTCString(), message: 'I am very '+body.toString()});
+                }
+            });
+        });
+    });
+    req.write(JSON.stringify({ texts:
+            [text] }));
+    req.end();
+}
+
 
 let port = process.env.PORT || 3000;
 //starts server on part 3000
 http.listen(port, () => {
-    console.log('listening on *: '+port);
+    console.log('listening on *: ' + port);
 });
