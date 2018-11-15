@@ -104,6 +104,10 @@ input:focus{
     font-size: 7pt;
     float: right;
 }
+#messages div.mood{
+    font-size: 9pt;
+    float: left;
+}
 
 img#picture {
     max-width: inherit;

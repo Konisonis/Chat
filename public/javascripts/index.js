@@ -74,13 +74,13 @@ $(() => {
     });
 
     //Receiving a message
-    socket.on('chat message', (messageObj = {timeStamp, sender, message}) => {
+    socket.on('chat message', (messageObj = {timeStamp, sender, message,mood}) => {
         homeChat.push(messageObj);
         appendMessageToChat(messageObj);
     });
 
     //receiving a private message
-    socket.on('private message', (messageObj = {timeStamp, sender, receiver, message}) => {
+    socket.on('private message', (messageObj = {timeStamp, sender, receiver, message,mood}) => {
 
         let senderChatIsOpen = privateChatUser === messageObj.sender;
         let ownMessageAndChatIsOpen = privateChatUser === messageObj.receiver;
@@ -243,6 +243,9 @@ $(() => {
             message += '<div class="sender">' + messageObj.sender + '</div>';
         }
         message += htmlTag;
+        if(messageObj.mood){
+            message += '<div class="mood">Mood :' + messageObj.mood + '</div><br>';
+        }
         message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
         message += '</div>';
         $('#messages').append(message);
@@ -296,9 +299,5 @@ $(() => {
         delete userList[user];  // Remove key from json object
         updateUsers();
     });
-    socket.on('mood',(mood,user)=>{
-        console.log(user+' is '+mood);
-    });
-
 })
 ;

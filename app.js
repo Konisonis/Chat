@@ -111,32 +111,41 @@ io.on('connection', (socket) => {
     //receiving a chat message
     socket.on('chat message', (message) => {
         let user = socket.user;
-        getMood(message,user);
         if (socket.user && message) {
-            Object.entries(connectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
-                let userSocket = connectedUsers[key];
-                if (userSocket) {
-                    userSocket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: user, message: message}); // Only sends message to logged in users not to all
-                }
+            getMood(message, user).then((mood) => {
+                Object.entries(connectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
+                    let userSocket = connectedUsers[key];
+                    if (userSocket) {
+                        userSocket.emit('chat message', {
+                            timeStamp: new Date().toUTCString(),
+                            sender: user,
+                            message: message,
+                            mood: mood
+                        }); // Only sends message to logged in users not to all
+                    }
+                });
             });
         }
     });
 
     //Send a message only to one specific client
-    socket.on('private message', (msg, receiver) => {
+    socket.on('private message', (message, receiver) => {
         //connectedUsers contains the sockets from each logged in user
         let receiverSocket = connectedUsers[receiver];
         let user = socket.user;
-        if (receiverSocket && msg && user) {
-            let data = {
-                receiver: receiver,
-                sender: user,
-                message: msg,
-                timeStamp: new Date().toUTCString()
-            };
-            receiverSocket.emit('private message', data);
-            //sender receives same message
-            socket.emit('private message', data);
+        if (receiverSocket && message && user) {
+            getMood(message, user).then((mood) => {
+                let data = {
+                    receiver: receiver,
+                    sender: user,
+                    message: message,
+                    timeStamp: new Date().toUTCString(),
+                    mood:mood
+                };
+                receiverSocket.emit('private message', data);
+                //sender receives same message
+                socket.emit('private message', data);
+            });
         }
     });
 
@@ -178,41 +187,45 @@ function createListWithUserNames() {
     return list;
 }
 
-function getMood(text,user) {
-    let options = {
-        "method": "POST",
-        "hostname":
-            "peaceful-morse.eu-de.mybluemix.net",
-        "path": [
-            "tone"
-        ],
-        "headers": {
-            "Content-Type": "application/json",
-            "cache-control": "no-cache",
-            "Postman-Token": "86b5ff66-dd88-4c0f-a537-94ddc842c919"
-        }
-    };
+function getMood(text, user) {
 
-    let req = https.request(options,  (res)=> {
-        let chunks = [];
+    return new Promise((resolve, reject) => {
 
-        res.on("data", (chunk)=> {
-            chunks.push(chunk);
-        });
+        let options = {
+            "method": "POST",
+            "hostname":
+                "peaceful-morse.eu-de.mybluemix.net",
+            "path": [
+                "tone"
+            ],
+            "headers": {
+                "Content-Type": "application/json",
+                "cache-control": "no-cache",
+            }
+        };
 
-        res.on("end", () =>{
-            let body = Buffer.concat(chunks);
-            console.log(body.toString());
-            Object.entries(connectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
-                if (socket) {
-                    socket.emit('mood', {timeStamp: new Date().toUTCString(), mood: body.toString(), user:user});
-                }
+        let req = https.request(options, (res) => {
+            let chunks = [];
+
+            res.on("data", (chunk) => {
+                chunks.push(chunk);
+            });
+
+            res.on("end", () => {
+                let body = Buffer.concat(chunks);
+                let mood = body.toString();
+                mood = JSON.parse(mood);
+                resolve(mood.mood);
+
             });
         });
+        req.write(JSON.stringify({
+            texts:
+                [text]
+        }));
+        req.end();
     });
-    req.write(JSON.stringify({ texts:
-            [text] }));
-    req.end();
+
 }
 
 
