@@ -8,6 +8,7 @@ button {
     font-size: 200px;
 }
 
+
 #start {
     background-color: #eeeeee;
     border-radius: 25px;
@@ -33,7 +34,7 @@ button {
 }
 
 #chatForm input {
-    width: 70%;
+    width: 60%;
     border-radius: 25px;
     border: 0;
     padding: 10px;
