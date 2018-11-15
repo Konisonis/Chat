@@ -111,7 +111,7 @@ io.on('connection', (socket) => {
     //receiving a chat message
     socket.on('chat message', (message) => {
         let user = socket.user;
-        getMood(message);
+        getMood(message,user);
         if (socket.user && message) {
             Object.entries(connectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
                 let userSocket = connectedUsers[key];
@@ -178,7 +178,7 @@ function createListWithUserNames() {
     return list;
 }
 
-function getMood(text) {
+function getMood(text,user) {
     let options = {
         "method": "POST",
         "hostname":
@@ -202,10 +202,10 @@ function getMood(text) {
 
         res.on("end", () =>{
             let body = Buffer.concat(chunks);
-
+            console.log(body.toString());
             Object.entries(connectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
                 if (socket) {
-                    socket.emit('chat message', {timeStamp: new Date().toUTCString(), message: 'I am very '+body.toString()});
+                    socket.emit('mood', {timeStamp: new Date().toUTCString(), mood: body.toString(), user:user});
                 }
             });
         });

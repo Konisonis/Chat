@@ -296,6 +296,9 @@ $(() => {
         delete userList[user];  // Remove key from json object
         updateUsers();
     });
+    socket.on('mood',(mood,user)=>{
+        console.log(user+' is '+mood);
+    });
 
 })
 ;

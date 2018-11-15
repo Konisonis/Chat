@@ -1,5 +1,5 @@
 ---
 applications:
-- name: hallo-welt
+- name: chatter
   memory: 512M
   instances: 1
