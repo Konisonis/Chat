@@ -7,7 +7,6 @@
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
-const https = require("https");
 const io = require('socket.io')(http);
 const database = require('./modules/database_module');
 const moodService = require('./modules/mood_module');

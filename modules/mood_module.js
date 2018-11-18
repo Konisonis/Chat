@@ -1,3 +1,5 @@
+const https = require("https");
+
 function getMood(text) {
 
     return new Promise((resolve, reject) => {
@@ -38,4 +40,4 @@ function getMood(text) {
     });
 }
 
-module.export = {getMood};
+module.exports = {getMood};
