@@ -14,12 +14,12 @@ $(() => {
 
     //Log in with user name
     $('#loginForm').submit(() => {
-            socket.emit('login', $('#user').val(), (ok) => {
+            socket.emit('login', $('#login-user').val(),$('#login-password').val(), (ok) => {
                 if (ok) {
                     $('#chat').show();
-                    $('#modal').modal('toggle');
-                    $('#loginModal').hide();
-                    $('#yourName').text($('#user').val());
+                    $('#login-modal').modal('toggle');
+                    $('#front-page').hide();
+                    $('#yourName').text($('#login-user').val());
                 } else {
                     $('#user').val('');
                     $('.alert').show();
@@ -41,6 +41,14 @@ $(() => {
         }
         $('#m').val('');
         return false;
+    });
+
+
+    $('#register-password, #register-confirm-password').on('keyup', function () {
+        if ($('#register-password').val() == $('#register-confirm-password').val()) {
+            $('#message').html('Matching').css('color', 'green');
+        } else
+            $('#message').html('Not Matching').css('color', 'red');
     });
 
     //Start file upload

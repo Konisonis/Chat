@@ -19,7 +19,7 @@ button {
     padding: 3%;
 }
 
-#login {
+.modal-window {
     width: 300px;
 }
 
@@ -34,7 +34,7 @@ button {
 }
 
 #chatForm input {
-    width: 40%;
+    width: 50%;
     border-radius: 25px;
     border: 0;
     padding: 10px;

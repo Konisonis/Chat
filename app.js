@@ -7,8 +7,10 @@
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
-var https = require("https");
+const https = require("https");
 const io = require('socket.io')(http);
+const database = require('./modules/database_module');
+const moodService = require('./modules/mood_module');
 
 const ss = require('socket.io-stream');
 
@@ -33,13 +35,18 @@ app.get('/', (req, res) => {
 });
 
 
+//console.log('Register:'+database.register('Peter',798));
+//console.log('Register:'+database.register('Hannes',203));
+
+
+
 //Socket.io
 io.on('connection', (socket) => {
 
     //-------------------handle login and logout
 
     //new client log-in
-    socket.on('login', (username, callback) => {
+    socket.on('login', (username, password, callback) => {
         //if username is already taken
         try {
             //username already in use, the user is already logged in or not valid
@@ -47,14 +54,19 @@ io.on('connection', (socket) => {
                 callback(false);
                 //if username is accepted and login was successful
             } else {
-                socket.user = username;
-                //tell the client then login was successful
-                callback(true);
-                connectedUsers[username] = socket;
-                userConnects(username);
 
-                socket.emit('user list', createListWithUserNames());
-                socket.broadcast.emit('user joined', username);
+                database.login(username,password).then((success)=>{
+                    if(success){
+                        socket.user = username;
+                        //tell the client then login was successful
+                        callback(true);
+                        connectedUsers[username] = socket;
+                        userConnects(username);
+
+                        socket.emit('user list', createListWithUserNames());
+                        socket.broadcast.emit('user joined', username);
+                    }
+                });
             }
         }
         catch (err) {
@@ -112,7 +124,7 @@ io.on('connection', (socket) => {
     socket.on('chat message', (message) => {
         let user = socket.user;
         if (socket.user && message) {
-            getMood(message, user).then((mood) => {
+            moodService.getMood(message).then((mood) => {
                 Object.entries(connectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
                     let userSocket = connectedUsers[key];
                     if (userSocket) {
@@ -134,7 +146,7 @@ io.on('connection', (socket) => {
         let receiverSocket = connectedUsers[receiver];
         let user = socket.user;
         if (receiverSocket && message && user) {
-            getMood(message, user).then((mood) => {
+            moodService.getMood(message).then((mood) => {
                 let data = {
                     receiver: receiver,
                     sender: user,
@@ -186,48 +198,6 @@ function createListWithUserNames() {
     });
     return list;
 }
-
-function getMood(text, user) {
-
-    return new Promise((resolve, reject) => {
-
-        let options = {
-            "method": "POST",
-            "hostname":
-                "peaceful-morse.eu-de.mybluemix.net",
-            "path": [
-                "tone"
-            ],
-            "headers": {
-                "Content-Type": "application/json",
-                "cache-control": "no-cache",
-            }
-        };
-
-        let req = https.request(options, (res) => {
-            let chunks = [];
-
-            res.on("data", (chunk) => {
-                chunks.push(chunk);
-            });
-
-            res.on("end", () => {
-                let body = Buffer.concat(chunks);
-                let mood = body.toString();
-                mood = JSON.parse(mood);
-                resolve(mood.mood);
-
-            });
-        });
-        req.write(JSON.stringify({
-            texts:
-                [text]
-        }));
-        req.end();
-    });
-
-}
-
 
 let port = process.env.PORT || 3000;
 //starts server on part 3000
