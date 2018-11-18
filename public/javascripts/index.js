@@ -63,7 +63,7 @@ $(() => {
         if(password === confirmPassword){
             socket.emit('registration',user, password, (success)=>{
                 console.log('Registration was successfull: '+success);
-                if(succes){
+                if(success){
                     $('#register-modal').modal('toggle');
                 }
                 else{
