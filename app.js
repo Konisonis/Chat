@@ -34,17 +34,20 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
 });
 
-
-//console.log('Register:'+database.register('Peter',798));
-//console.log('Register:'+database.register('Hannes',203));
-
-
-
 //Socket.io
 io.on('connection', (socket) => {
 
-    //-------------------handle login and logout
 
+    socket.on('registration',(username,password,callback)=>{
+        try{
+            database.register(username,password).then((success)=>{
+                callback(success);
+            });
+        }catch(err){
+
+        }
+    });
+    //-------------------handle login and logout
     //new client log-in
     socket.on('login', (username, password, callback) => {
         //if username is already taken

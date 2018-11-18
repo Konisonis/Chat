@@ -9,7 +9,7 @@ function login(user, password) {
     let query = 'select username,password from users where username="'+user+'"';
     return new Promise((resolve, reject)=>{
         connection.query(query, (err, rows) => {
-            if(err || !rows){
+            if(err || !rows[0]){
                 resolve(false);
             }else{
                 if(rows[0].username && rows[0].password){
@@ -21,13 +21,19 @@ function login(user, password) {
 }
 
 function register(user, password) {
-    if(user && password){
-        let query = 'insert into users(username,password) values("' + user + '","' + password + '");';
-        return connection.query(query, (err) => {
-            console.log(!err);
-            return !err;
-        });
-    }
+    return new Promise((resolve,reject)=>{
+        if(user && password){
+            let query = 'insert into users(username,password) values("' + user + '","' + password + '");';
+            return connection.query(query, (err) => {
+                if(err){
+                    resolve(false);
+                }else{
+                    resolve(true);
+                }
+            });
+        }else resolve(false);
+    });
+
 }
 
 module.exports = {login,register};

@@ -44,11 +44,34 @@ $(() => {
     });
 
 
-    $('#register-password, #register-confirm-password').on('keyup', function () {
+    $('#register-password, #register-confirm-password').on('keyup', ()=> {
         if ($('#register-password').val() == $('#register-confirm-password').val()) {
             $('#message').html('Matching').css('color', 'green');
-        } else
+        } else {
             $('#message').html('Not Matching').css('color', 'red');
+        }
+    });
+
+    $('#registerForm').submit((event)=>{
+        event.preventDefault();
+
+
+        let user = $('#register-user').val();
+        let password = $('#register-password').val();
+        let confirmPassword = $('#register-confirm-password').val();
+
+        if(password === confirmPassword){
+            socket.emit('registration',user, password, (success)=>{
+                console.log('Registration was successfull: '+success);
+                if(succes){
+                    $('#register-modal').modal('toggle');
+                }
+                else{
+
+                }
+            });
+        }
+
     });
 
     //Start file upload
