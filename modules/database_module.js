@@ -21,18 +21,26 @@ function login(user, password) {
 }
 
 function register(user, password) {
+    let status = {success: false, message:''};
     return new Promise((resolve,reject)=>{
         if(user && password){
             let query = 'insert into users(username,password) values("' + user + '","' + password + '");';
-            return connection.query(query, (err) => {
+            connection.query(query, (err) => {
                 if(err){
-                    resolve(false);
+                    console.log(err);
+                    status.message = 'Username already taken'; //If username already taken an error is thrown
                 }else{
-                    resolve(true);
+                    status.message = true;
                 }
+                resolve(status);
             });
-        }else resolve(false);
+        }else { status.message = 'There is a problem with the username or password! Please try again!';
+            resolve(status);
+        }
     });
+}
+
+function checkIfUsernameAlreadyTaken(username){
 
 }
 

@@ -52,6 +52,7 @@ $(() => {
         }
     });
 
+    //Registration
     $('#registerForm').submit((event)=>{
         event.preventDefault();
 
@@ -61,13 +62,14 @@ $(() => {
         let confirmPassword = $('#register-confirm-password').val();
 
         if(password === confirmPassword){
-            socket.emit('registration',user, password, (success)=>{
-                console.log('Registration was successfull: '+success);
+            socket.emit('registration',user, password, (success, statusMessage)=>{
                 if(success){
                     $('#register-modal').modal('toggle');
+                    console.log('Registration was successfull');
+
                 }
                 else{
-
+                    console.log(statusMessage);
                 }
             });
         }
@@ -178,7 +180,7 @@ $(() => {
                 receiver: data.receiver
             };
 
-            let senderChatIsOpen = privateChatUser === fileObject.sender;   //TODO double code
+            let senderChatIsOpen = privateChatUser === fileObject.sender;   //TODO redundant code
             let ownMessageAndChatIsOpen = privateChatUser === fileObject.receiver;
 
             let user = fileObject.sender;

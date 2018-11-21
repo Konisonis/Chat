@@ -10,6 +10,8 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const database = require('./modules/database_module');
 const moodService = require('./modules/mood_module');
+const faceRecognition = require('./modules/face_recognition_module');
+const fs = require('fs');
 
 const ss = require('socket.io-stream');
 
@@ -38,13 +40,27 @@ io.on('connection', (socket) => {
 
 
     socket.on('registration',(username,password,callback)=>{
-        try{
-            database.register(username,password).then((success)=>{
-                callback(success);
+        try{//status success is true or false
+            database.register(username,password).then((status)=>{
+                callback(status.success, status.message);
             });
         }catch(err){
 
         }
+    });
+    ss(socket).on('profile picture', (stream, data) => {
+        let path = 'pictures/'+data.name;
+        //faceRecognition.hasFace(stream);
+        let writeStream = fs.createWriteStream(path);
+        stream.pipe(writeStream);
+
+        writeStream.on('finish', ()=> {
+            faceRecognition.hasFace(path).then((result)=>{
+                fs.unlink(path,()=>{});
+            });
+        });
+
+
     });
     //-------------------handle login and logout
     //new client log-in
