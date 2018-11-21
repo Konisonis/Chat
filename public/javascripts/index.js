@@ -22,7 +22,7 @@ $(() => {
                     $('#yourName').text($('#login-user').val());
                 } else {
                     $('#user').val('');
-                    $('.alert').show();
+                    $('#login-error').show();
                 }
             });
             return false;
@@ -65,13 +65,47 @@ $(() => {
             socket.emit('registration',user, password, (success, statusMessage)=>{
                 if(success){
                     $('#register-modal').modal('toggle');
-                    console.log('Registration was successfull');
-
+                    //TODO registraion was succesfull handle event
+                    //auto login
                 }
                 else{
-                    console.log(statusMessage);
+                    $('#registraion-error').text(statusMessage);
+                    $('#registraion-error').show();
+
                 }
             });
+        }
+
+    });
+
+    //upload a profile picture
+    $('#profile-pic').change((e) => {
+        let file = e.target.files[0];
+
+        if (file) {
+            let stream = ss.createStream();
+            // upload
+                ss(socket).emit('profile picture', stream, {
+                    receiver: privateChatUser,
+                    name: file.name,
+                    size: file.size,
+                    type: file.type
+                });
+            let blobStream = ss.createBlobReadStream(file);
+            blobStream.pipe(stream);
+        }
+
+    });
+
+    //notification if profile pic meets expectencies
+    socket.on('picture with face',(hasFace)=>{
+        if(hasFace){
+            $('#invalidPicture').hide();
+
+            $('#validPicture').show();
+        }else{
+            $('#validPicture').hide();
+            $('#invalidPicture').show();
         }
 
     });
@@ -79,6 +113,7 @@ $(() => {
     //Start file upload
     $('#inputFile').change((e) => {
         let file = e.target.files[0];
+
         if (file) {
             let stream = ss.createStream();
 
@@ -105,6 +140,7 @@ $(() => {
             blobStream.pipe(stream);
         }
     });
+
 
     //Receiving a message
     socket.on('chat message', (messageObj = {timeStamp, sender, message,mood}) => {
@@ -210,6 +246,16 @@ $(() => {
         $('#uploadFinished').hide();
         $('#inputFile').click();
     });
+
+    //Trigger thr profile picture chooser
+    $('#profilePicTrigger').click(() => {
+       // $('.progress-bar').css('width', 0 + '%');
+        // $('.progress-bar').addClass('progress-bar-striped progress-bar-animated');
+       // $('#uploadFinished').hide();
+        $('#profile-pic').click();
+    });
+
+
 
     //Selecting a private chat
     $('#users').on('click', 'button.userElement', (event) => {

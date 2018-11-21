@@ -57,10 +57,9 @@ io.on('connection', (socket) => {
         writeStream.on('finish', ()=> {
             faceRecognition.hasFace(path).then((result)=>{
                 fs.unlink(path,()=>{});
+                socket.emit('picture with face',result);
             });
         });
-
-
     });
     //-------------------handle login and logout
     //new client log-in

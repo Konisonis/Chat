@@ -6,6 +6,7 @@ let connection = mysql.createConnection('mysql://admin:UMRWFLKJZJBECNJA@sl-eu-fr
 
 
 function login(user, password) {
+    user = user.toLowerCase();
     let query = 'select username,password from users where username="'+user+'"';
     return new Promise((resolve, reject)=>{
         connection.query(query, (err, rows) => {
@@ -21,6 +22,7 @@ function login(user, password) {
 }
 
 function register(user, password) {
+    user = user.toLowerCase();
     let status = {success: false, message:''};
     return new Promise((resolve,reject)=>{
         if(user && password){

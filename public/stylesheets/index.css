@@ -157,9 +157,16 @@ img#picture {
     width: 79%;
 }
 
-#uploadFinished {
+#validPicture {
     display: none;
 }
+
+#invalidPicture{
+    display: none;
+}
+
+.material-icons.red { color: #fb0014; }
+.material-icons.green { color: #19fb00; }
 
 #chatSelection {
     background-color: #eeeeee;

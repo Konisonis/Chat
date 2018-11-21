@@ -55,8 +55,8 @@
                 <div class="modal-body">
 
                     <!--Username already taken-->
-                    <div class="alert alert-danger" role="alert">
-                        Username already taken.
+                    <div class="alert alert-danger" id ='#login-error'  role="alert">
+                        Wrong username or password
                     </div>
 
                     <!--Login Form-->
@@ -76,7 +76,7 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!--Register Modal -->
     <div class="modal fade" id="register-modal" tabindex="-1" role="dialog" aria-labelledby="Login" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -88,9 +88,8 @@
                 </div>
                 <div class="modal-body">
 
-                    <!--Username already taken-->
-                    <div class="alert alert-danger" role="alert">
-                        Username already taken.
+                    <!--Error message-->
+                    <div class="alert alert-danger" id="registraion-error" role="alert">
                     </div>
 
                     <!--Login Form-->
@@ -108,6 +107,20 @@
                             <label for="register-confirm-password" class="col-2 col-form-label">Repeat-Password</label>
                             <input id="register-confirm-password" type="password" required="required" autocomplete="off">
                             <span id='message'></span>
+                        </div>
+
+                        <!--File chooser for profile picture-->
+                        <div id="profile-pic-chooser">
+                            <input type="file" id="profile-pic" style="display: none;"/>
+                            <button class="btn btn-primary bmd-btn-fab" id="profilePicTrigger">
+                                <i class="material-icons">attachment</i>
+                            </button>
+                            <i id="validPicture" class="material-icons green">
+                                done
+                            </i>
+                            <i id="invalidPicture" class="material-icons red">
+                                clear
+                            </i>
                         </div>
 
 
@@ -144,9 +157,6 @@
                     <button class="btn btn-primary bmd-btn-fab" id="fileChooseTrigger">
                         <i class="material-icons">attachment</i>
                     </button>
-                    <i id="uploadFinished" class="material-icons">
-                        done
-                    </i>
                 </div>
                 <form action="">
                     <input id="m" class="form-text" required="required" autocomplete="off"/>
@@ -161,7 +171,7 @@
         <div class="col-sm-2 " id="chatSelection">
             <!--Other logged in users-->
 
-            <button class="btn btn-primary bmd-btn-fab id="homeChat">
+            <button class="btn btn-primary bmd-btn-fab" id="homeChat">
                 <i class="material-icons">home</i>
             </button>
 
