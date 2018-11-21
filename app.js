@@ -42,8 +42,15 @@ io.on('connection', (socket) => {
     socket.on('registration',(username,password,callback)=>{
         try{//status success is true or false
             database.register(username,password).then((status)=>{
-                callback(status.success, status.message);
+                if(socket.profilePicture){
+                    callback(status.success, status.message);
+
+                }else{
+                    status.message += 'Please select a picture.  ';
+                    callback(false, status.message);
+                }
             });
+
         }catch(err){
 
         }
@@ -57,7 +64,9 @@ io.on('connection', (socket) => {
         writeStream.on('finish', ()=> {
             faceRecognition.hasFace(path).then((result)=>{
                 fs.unlink(path,()=>{});
+                socket.profilePicture = true; //TODO save real picture
                 socket.emit('picture with face',result);
+
             });
         });
     });

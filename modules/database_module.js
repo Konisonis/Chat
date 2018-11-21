@@ -30,13 +30,13 @@ function register(user, password) {
             connection.query(query, (err) => {
                 if(err){
                     console.log(err);
-                    status.message = 'Username already taken'; //If username already taken an error is thrown
+                    status.message = 'Username already taken.  '; //If username already taken an error is thrown
                 }else{
-                    status.message = true;
+                    status.success = true;
                 }
                 resolve(status);
             });
-        }else { status.message = 'There is a problem with the username or password! Please try again!';
+        }else { status.message = 'There is a problem with the username or password! Please try again!  ';
             resolve(status);
         }
     });

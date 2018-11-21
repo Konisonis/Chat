@@ -64,11 +64,20 @@ $(() => {
         if(password === confirmPassword){
             socket.emit('registration',user, password, (success, statusMessage)=>{
                 if(success){
-                    $('#register-modal').modal('toggle');
-                    //TODO registraion was succesfull handle event
                     //auto login
+                    socket.emit('login',user,password,(ok)=>{
+                    if (ok) {
+                        $('#register-modal').modal('toggle');
+                        $('#chat').show();
+                        $('#front-page').hide();
+                        $('#yourName').text(user);
+                    } else {
+                        $('#register-error').text('No login possible pleas try manual');
+                        $('#register-error').show();
+                    }
+                    });
                 }
-                else{
+                else if(statusMessage){
                     $('#registraion-error').text(statusMessage);
                     $('#registraion-error').show();
 
