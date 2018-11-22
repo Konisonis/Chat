@@ -46,7 +46,6 @@ io.on('connection', (socket) => {
                 if(image){
                     callback(status.success, status.message);
                 }else{
-                    status.message += 'Please select a picture.  ';
                     callback(false, status.message);
                 }
             });

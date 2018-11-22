@@ -26,7 +26,7 @@ function register(user, password, image) {
     let status = {success: false, message:''};
     return new Promise((resolve,reject)=>{
         if(user && password){
-            let query = 'insert into users(username,password,profile_picture) values("' + user + '","' + password +'");';
+            let query = 'insert into users(username,password) values("' + user + '","' + password +'");';
         //,BINARY('+image+')
             connection.query(query, (err) => {
                 if(err){
