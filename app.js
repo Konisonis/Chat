@@ -41,10 +41,10 @@ io.on('connection', (socket) => {
 
     socket.on('registration',(username,password,callback)=>{
         try{//status success is true or false
-            database.register(username,password).then((status)=>{
-                if(socket.profilePicture){
+            let image = socket.profilePicture;
+            database.register(username,password,image).then((status)=>{
+                if(image){
                     callback(status.success, status.message);
-
                 }else{
                     status.message += 'Please select a picture.  ';
                     callback(false, status.message);
@@ -63,8 +63,10 @@ io.on('connection', (socket) => {
 
         writeStream.on('finish', ()=> {
             faceRecognition.hasFace(path).then((result)=>{
+                if(result){
+                    socket.profilePicture = readImageFile(path);
+                }
                 fs.unlink(path,()=>{});
-                socket.profilePicture = true; //TODO save real picture
                 socket.emit('picture with face',result);
 
             });
@@ -223,6 +225,13 @@ function createListWithUserNames() {
         list.push(key);
     });
     return list;
+}
+
+function readImageFile(file) {
+    // read binary data from a file:
+    const bitmap = fs.readFileSync(file);
+    const buf = new Buffer(bitmap);
+    return buf;
 }
 
 let port = process.env.PORT || 3000;

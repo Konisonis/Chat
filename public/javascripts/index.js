@@ -78,14 +78,16 @@ $(() => {
                     });
                 }
                 else if(statusMessage){
-                    $('#registraion-error').text(statusMessage);
-                    $('#registraion-error').show();
+                    $('#register-error').text(statusMessage);
+                    $('#register-error').show();
 
                 }
             });
         }
 
     });
+
+
 
     //upload a profile picture
     $('#profile-pic').change((e) => {
@@ -261,6 +263,8 @@ $(() => {
        // $('.progress-bar').css('width', 0 + '%');
         // $('.progress-bar').addClass('progress-bar-striped progress-bar-animated');
        // $('#uploadFinished').hide();
+        $('#validPicture').hide();
+        $('#invalidPicture').hide();
         $('#profile-pic').click();
     });
 

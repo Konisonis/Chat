@@ -21,16 +21,17 @@ function login(user, password) {
     });
 }
 
-function register(user, password) {
+function register(user, password, image) {
     user = user.toLowerCase();
     let status = {success: false, message:''};
     return new Promise((resolve,reject)=>{
         if(user && password){
-            let query = 'insert into users(username,password) values("' + user + '","' + password + '");';
+            let query = 'insert into users(username,password,profile_picture) values("' + user + '","' + password +'");';
+        //,BINARY('+image+')
             connection.query(query, (err) => {
                 if(err){
                     console.log(err);
-                    status.message = 'Username already taken.  '; //If username already taken an error is thrown
+                    status.message = 'Something went horribly wrong!  '; //If username already taken an error is thrown
                 }else{
                     status.success = true;
                 }
@@ -42,8 +43,5 @@ function register(user, password) {
     });
 }
 
-function checkIfUsernameAlreadyTaken(username){
-
-}
 
 module.exports = {login,register};

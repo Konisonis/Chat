@@ -89,10 +89,10 @@
                 <div class="modal-body">
 
                     <!--Error message-->
-                    <div class="alert alert-danger" id="registraion-error" role="alert">
+                    <div class="alert alert-danger" id="register-error" role="alert">
                     </div>
 
-                    <!--Login Form-->
+                    <!--Register Form-->
                     <form id="registerForm" class=".form-control">
 
                         <div class="form-group row">
@@ -108,24 +108,21 @@
                             <input id="register-confirm-password" type="password" required="required" autocomplete="off">
                             <span id='message'></span>
                         </div>
-
-                        <!--File chooser for profile picture-->
-                        <div id="profile-pic-chooser">
-                            <input type="file" id="profile-pic" style="display: none;"/>
-                            <button class="btn btn-primary bmd-btn-fab" id="profilePicTrigger">
-                                <i class="material-icons">attachment</i>
-                            </button>
-                            <i id="validPicture" class="material-icons green">
-                                done
-                            </i>
-                            <i id="invalidPicture" class="material-icons red">
-                                clear
-                            </i>
-                        </div>
-
-
                         <button type="submit" class="btn btn-primary">Register</button>
                     </form>
+                    <!--File chooser for profile picture-->
+                    <div id="profile-pic-chooser">
+                        <input type="file" id="profile-pic" style="display: none;"/>
+                        <button class="btn btn-primary bmd-btn-fab" id="profilePicTrigger">
+                            <i class="material-icons">attachment</i>
+                        </button>
+                        <i id="validPicture" class="material-icons green">
+                            done
+                        </i>
+                        <i id="invalidPicture" class="material-icons red">
+                            clear
+                        </i>
+                    </div>
                 </div>
             </div>
         </div>
