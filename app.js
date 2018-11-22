@@ -45,14 +45,9 @@ io.on('connection', (socket) => {
 
 
     socket.on('registration',(username,password,callback)=>{
-        try{//status success is true or false
-            let image = socket.profilePicture;
+        try{//status status.success is true if registration was successfull
             database.register(username,password,image).then((status)=>{
-                if(image){
                     callback(status.success, status.message);
-                }else{
-                    callback(false, status.message);
-                }
             });
 
         }catch(err){
@@ -69,6 +64,8 @@ io.on('connection', (socket) => {
             faceRecognition.hasFace(path).then((result)=>{
                 if(result){
                     socket.profilePicture = readImageFile(path);
+                }else{
+                    socket.profilePicture = undefined;
                 }
                 fs.unlink(path,()=>{});
                 socket.emit('picture with face',result);
