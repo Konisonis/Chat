@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
 
     socket.on('registration',(username,password,callback)=>{
         try{//status status.success is true if registration was successfull
-            database.register(username,password).then((status)=>{
+            database.register(username,password,socket.profilePicture).then((status)=>{
                     callback(status.success, status.message);
             });
 
@@ -231,7 +231,7 @@ function createListWithUserNames() {
 function readImageFile(file) {
     // read binary data from a file:
     const bitmap = fs.readFileSync(file);
-    const buf = new Buffer(bitmap);
+    const buf = new Buffer(bitmap).toString('base64');
     return buf;
 }
 
