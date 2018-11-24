@@ -55,23 +55,28 @@ io.on('connection', (socket) => {
         }
     });
     ss(socket).on('profile picture', (stream, data) => {
-        let path = 'pictures/'+data.name;
-        //faceRecognition.hasFace(stream);
-        let writeStream = fs.createWriteStream(path);
-        stream.pipe(writeStream);
+        try {
+            let path = 'pictures/' + data.name;
+            //faceRecognition.hasFace(stream);
+            let writeStream = fs.createWriteStream(path);
+            stream.pipe(writeStream);
 
-        writeStream.on('finish', ()=> {
-            faceRecognition.hasFace(path).then((result)=>{
-                if(result){
-                    socket.profilePicture = readImageFile(path);
-                }else{
-                    socket.profilePicture = undefined;
-                }
-                fs.unlink(path,()=>{});
-                socket.emit('picture with face',result);
+            writeStream.on('finish', () => {
+                faceRecognition.hasFace(path).then((result) => {
+                    if (result) {
+                        socket.profilePicture = readImageFile(path);
+                    } else {
+                        socket.profilePicture = undefined;
+                    }
+                    fs.unlink(path, () => {
+                    });
+                    socket.emit('picture with face', result);
 
+                });
             });
-        });
+        }catch{
+            console.log('There was a problem with the picture valiation');
+        }
     });
     //-------------------handle login
     //new client log-in
