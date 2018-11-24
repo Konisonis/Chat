@@ -74,8 +74,9 @@ io.on('connection', (socket) => {
 
                 });
             });
-        }catch{
+        }catch(err){
             console.log('There was a problem with the picture valiation');
+            console.log(err);
         }
     });
     //-------------------handle login
