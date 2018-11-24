@@ -84,16 +84,19 @@ io.on('connection', (socket) => {
                 //if username is accepted and login was successful
             } else {
 
-                database.login(username,password).then((success)=>{
-                    if(success){
+                database.login(username,password).then((status)=>{
+                    if(status.success){
                         socket.user = username;
+                        socket.image = status.image;
                         //tell the client then login was successful
-                        callback(true);
+                        callback(status);
                         connectedUsers[username] = socket;
                         userConnects(username);
 
                         socket.emit('user list', createListWithUserNames());
                         socket.broadcast.emit('user joined', username);
+                    }else{
+                        callback(status);
                     }
                 });
             }

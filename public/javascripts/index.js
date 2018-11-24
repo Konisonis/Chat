@@ -14,15 +14,26 @@ $(() => {
 
     //Log in with user name
     $('#loginForm').submit(() => {
-            socket.emit('login', $('#login-user').val(),$('#login-password').val(), (ok) => {
-                if (ok) {
+            socket.emit('login', $('#login-user').val(),$('#login-password').val(), (status) => {
+                if (status.success) {
+                    console.log(status.image);
                     $('#chat').show();
                     $('#login-modal').modal('toggle');
                     $('#front-page').hide();
                     $('#yourName').text($('#login-user').val());
+
+
+                    let dataString = status.image.toString('utf8')
+                    console.log(dataString);
+                    //let blob = new Blob([new Uint8Array(status.image)]);
+                    //let fileUrl = URL.createObjectURL(blob);
+
+                    //$('#profile-picture').attr("src","data:image/png;base64,"+base64String);
+
                 } else {
                     $('#user').val('');
                     $('#login-error').show();
+                    $('#login-error').text(status.message);
                 }
             });
             return false;
