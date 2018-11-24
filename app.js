@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
             });
         });
     });
-    //-------------------handle login and logout
+    //-------------------handle login
     //new client log-in
     socket.on('login', (username, password, callback) => {
         //if username is already taken
@@ -106,6 +106,7 @@ io.on('connection', (socket) => {
         }
     });
 
+    //-------------------Handle disconnect
     //on client disconnect
     socket.on('disconnect', () => {
         removeUser(socket);
@@ -237,6 +238,7 @@ function readImageFile(file) {
     const buf = new Buffer(bitmap).toString('base64');
     return buf;
 }
+
 
 let port = process.env.PORT || 3000;
 //starts server on part 3000

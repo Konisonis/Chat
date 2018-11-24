@@ -15,26 +15,10 @@ $(() => {
     //Log in with user name
     $('#loginForm').submit(() => {
             socket.emit('login', $('#login-user').val(),$('#login-password').val(), (status) => {
-                if (status.success) {
-                    console.log(status.image);
-                    $('#chat').show();
-                    $('#login-modal').modal('toggle');
-                    $('#front-page').hide();
-                    $('#yourName').text($('#login-user').val());
-
-
-                    let dataString = status.image.toString('utf8')
-                    console.log(dataString);
-                    //let blob = new Blob([new Uint8Array(status.image)]);
-                    //let fileUrl = URL.createObjectURL(blob);
-
-                    //$('#profile-picture').attr("src","data:image/png;base64,"+base64String);
-
-                } else {
-                    $('#user').val('');
-                    $('#login-error').show();
-                    $('#login-error').text(status.message);
-                }
+                    if(status.success){
+                        $('#login-modal').modal('toggle');
+                    }
+                    handleLogin(status);
             });
             return false;
         }
@@ -76,16 +60,11 @@ $(() => {
             socket.emit('registration',user, password, (success, statusMessage)=>{
                 if(success){
                     //auto login
-                    socket.emit('login',user,password,(ok)=>{
-                    if (ok) {
-                        $('#register-modal').modal('toggle');
-                        $('#chat').show();
-                        $('#front-page').hide();
-                        $('#yourName').text(user);
-                    } else {
-                        $('#register-error').text('No login possible pleas try manual');
-                        $('#register-error').show();
-                    }
+                    socket.emit('login',user,password,(status)=>{
+                        if(status.success){
+                            $('#register-modal').modal('toggle');
+                        }
+                    handleLogin(status);
                     });
                 }
                 else if(statusMessage){
@@ -373,6 +352,26 @@ $(() => {
             let element =$(".newMessage[title='"+user+"']");
             element.show();
 
+        }
+    }
+
+    function handleLogin(status) {
+        if (status.success) {
+            $('#chat').show();
+            $('#front-page').hide();
+            $('#yourName').text($('#login-user').val());
+
+            //If a profile picture is available
+            if(status.image){
+                var string = new TextDecoder("utf-8").decode(new Uint8Array(status.image));
+                $('#profile-picture').attr("src","data:image/png;base64,"+string);
+            }
+
+
+        } else {
+            $('#user').val('');
+            $('#login-error').show();
+            $('#login-error').text(status.message);
         }
     }
 

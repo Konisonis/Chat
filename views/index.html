@@ -55,14 +55,14 @@
                 <div class="modal-body">
 
                     <!--Error message-->
-                    <div class="alert alert-danger" id ='login-error'  role="alert">
+                    <div class="alert alert-danger" id='login-error' role="alert">
                     </div>
 
                     <!--Login Form-->
                     <form id="loginForm" class=".form-control">
                         <div class="form-group row">
                             <label for="login-user" class="col-2 col-form-label">User</label>
-                                <input id="login-user" type="text" required="required" autocomplete="off">
+                            <input id="login-user" type="text" required="required" autocomplete="off">
                         </div>
                         <div class="form-group row">
                             <label for="login-password" class="col-2 col-form-label">Password</label>
@@ -104,7 +104,8 @@
                         </div>
                         <div class="form-group row">
                             <label for="register-confirm-password" class="col-2 col-form-label">Repeat-Password</label>
-                            <input id="register-confirm-password" type="password" required="required" autocomplete="off">
+                            <input id="register-confirm-password" type="password" required="required"
+                                   autocomplete="off">
                             <span id='message'></span>
                         </div>
                         <button type="submit" class="btn btn-primary">Register</button>
@@ -132,11 +133,11 @@
 <div class="container-fluid" id="chat">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <span>You are chatting as: <span id="yourName"></span></span>
+        <image id="profile-picture" style=" height:60px; width:60px;border-radius:50%;"></image>
         <br>
 
         <span>&nbsp;&nbsp;&nbsp;&nbsp;You are chatting with: <span id="chatPartner">Everyone</span></span>
 
-        <image id="profile-picture"  style="border-radius:50%;"></image>
     </nav>
 
     <br>
