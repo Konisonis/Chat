@@ -18,7 +18,7 @@ $(() => {
                     if(status.success){
                         $('#login-modal').modal('toggle');
                     }
-                    handleLogin(status);
+                    handleLogin(status,$('#login-user').val());
             });
             return false;
         }
@@ -64,7 +64,7 @@ $(() => {
                         if(status.success){
                             $('#register-modal').modal('toggle');
                         }
-                    handleLogin(status);
+                    handleLogin(status,user);
                     });
                 }
                 else if(statusMessage){
@@ -355,11 +355,11 @@ $(() => {
         }
     }
 
-    function handleLogin(status) {
+    function handleLogin(status,username) {
         if (status.success) {
             $('#chat').show();
             $('#front-page').hide();
-            $('#yourName').text($('#login-user').val());
+            $('#yourName').text(username);
 
             //If a profile picture is available
             if(status.image){
