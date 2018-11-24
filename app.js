@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
 
     socket.on('registration',(username,password,callback)=>{
         try{//status status.success is true if registration was successfull
-            database.register(username,password,socket.profilePicture).then((status)=>{
+            database.register(username,password,socket.image).then((status)=>{
                     callback(status.success, status.message);
             });
 
@@ -64,9 +64,9 @@ io.on('connection', (socket) => {
             writeStream.on('finish', () => {
                 faceRecognition.hasFace(path).then((result) => {
                     if (result) {
-                        socket.profilePicture = readImageFile(path);
+                        socket.image = readImageFile(path);
                     } else {
-                        socket.profilePicture = undefined;
+                        socket.image = undefined;
                     }
                     fs.unlink(path, () => {
                     });
@@ -100,7 +100,7 @@ io.on('connection', (socket) => {
                         userConnects(username);
 
                         socket.emit('user list', createListWithUserNames());
-                        socket.broadcast.emit('user joined', username);
+                        socket.broadcast.emit('user joined', {name:username,image:socket.image});
                     }else{
                         callback(status);
                     }
@@ -182,6 +182,7 @@ io.on('connection', (socket) => {
     //Send a message only to one specific client
     socket.on('private message', (message, receiver) => {
         //connectedUsers contains the sockets from each logged in user
+
         let receiverSocket = connectedUsers[receiver];
         let user = socket.user;
         if (receiverSocket && message && user) {
@@ -233,7 +234,7 @@ function userConnects(user) {
 function createListWithUserNames() {
     let list = [];
     Object.entries(connectedUsers).forEach(([key, value]) => { //key => username, value=> socket
-        list.push(key);
+        list.push({name:key,image:value.image});
     });
     return list;
 }

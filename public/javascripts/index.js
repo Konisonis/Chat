@@ -87,7 +87,6 @@ $(() => {
             let stream = ss.createStream();
             // upload
                 ss(socket).emit('profile picture', stream, {
-                    receiver: privateChatUser,
                     name: file.name,
                     size: file.size,
                     type: file.type
@@ -263,9 +262,9 @@ $(() => {
     //Selecting a private chat
     $('#users').on('click', 'button.userElement', (event) => {
         privateChatUser = $(event.target).val();
+
         $('#chatPartner').text(privateChatUser);
         let privateChat = userList[privateChatUser].messages;
-
         //hide new_message icon
         hideNewMessageIcon(privateChatUser);
 
@@ -337,13 +336,22 @@ $(() => {
     //Update the list of users is the chat
     function updateUsers() {
         $('#users').empty();
-        Object.entries(userList).forEach(([key, value]) => {  //key => username, value=> {user, messages}
+        Object.entries(userList).forEach(([key, value]) => {  //key => username, value=> {user, messages, image}
             if (key !== $('#yourName').text()) {
-                $('#users').append('<li><i class="material-icons">face</i>\n<button type="button" class="userElement btn btn-primary" value="' + key + '">\n' +
+                let htmlString = '';
+                if(value.image){
+                    htmlString = '<li><image style="width:50px;height:50px;border-radius:50%;" src="data:image/png;base64,'+value.image+'"></image>\n';
+                }else{
+                    htmlString ='<li><i class="material-icons">face</i>\n'
+                }
+                htmlString += '<button type="button" class="userElement btn btn-primary" value="' + value.user + '">\n' +
                     '                    ' + value.user + '<span class="badge badge-light"></span>\n' +
-                    '                    <span class="sr-only"></span><i style="display:none;" title="'+key+'" class="material-icons newMessage">new_releases</i>\n' +
-                    '                </button></li>');
+                    '                    <span class="sr-only"></span><i style="display:none;" title="'+value.user+'" class="material-icons newMessage">new_releases</i>\n' +
+                    '                </button></li>';
+
+                $('#users').append(htmlString);
             }
+
         });
     }
     //Show the user that he received a new private message
@@ -363,7 +371,7 @@ $(() => {
 
             //If a profile picture is available
             if(status.image){
-                var string = new TextDecoder("utf-8").decode(new Uint8Array(status.image));
+                let string = new TextDecoder("utf-8").decode(new Uint8Array(status.image));
                 $('#profile-picture').attr("src","data:image/png;base64,"+string);
             }
 
@@ -382,18 +390,29 @@ $(() => {
     }
 
     //Receiving an updated user list
-    socket.on('user list', (users) => {  //users = [userName1, userName2]
+    socket.on('user list', (users) => {  //users = [{username,image}]
         $('#users').empty();
+
         users.forEach((user) => {
-            if ($('#yourName').text() !== user) {
-                userList[user] = {user: user, messages: []};
+            let image = '';
+            if(user.image){
+                image = new TextDecoder("utf-8").decode(new Uint8Array(user.image));
+            }
+            if ($('#yourName').text() !== user.name) {
+                userList[user.name] = {user: user.name, messages: [], image:image };
             }
         });
+
         updateUsers();
     });
 
     socket.on('user joined', (user) => {
-        userList[user] = {user: user, messages: []};
+        let image = '';
+        if(user.image){
+            image = new TextDecoder("utf-8").decode(new Uint8Array(user.image));
+            console.log('Joined user has profile picture: '+user.name);
+        }
+        userList[user.name] = {user: user.name, messages: [], image:image};
         updateUsers();
     });
 
