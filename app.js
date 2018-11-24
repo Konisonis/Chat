@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
     });
     ss(socket).on('profile picture', (stream, data) => {
         try {
-            let path = 'pictures/' + data.name;
+            let path = './pictures/' + data.name;
             //faceRecognition.hasFace(stream);
             let writeStream = fs.createWriteStream(path);
             stream.pipe(writeStream);
