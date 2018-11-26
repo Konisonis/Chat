@@ -25,10 +25,15 @@ function getMood(text) {
             });
 
             res.on("end", () => {
-                let body = Buffer.concat(chunks);
-                let mood = body.toString();
-                mood = JSON.parse(mood);
-                resolve(mood.mood);
+                try {
+                    let body = Buffer.concat(chunks);
+                    let mood = body.toString();
+                    console.log(mood);
+                    mood = JSON.parse(mood);
+                    resolve(mood.mood);
+                }catch(err){
+                    resolve('');
+                }
 
             });
         });
