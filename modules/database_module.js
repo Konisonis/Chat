@@ -11,26 +11,34 @@ function login(user, password) {
     let status = {success: false, message: ''};
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
-            if (err) {
-                status.message = 'Internal server error';
-            }else if(!rows[0]) {
-                status.message = 'Wrong username';
-            }
-            else{
-                if (rows[0].username && rows[0].password) {
-                    //login was successful or not
-                    status.success = password === rows[0].password;
-                    if(!status.success){
-                        status.message = 'Wrong password';
-                    }
-                    if(rows[0].image && status.success){
-                        status.image = rows[0].image;
-                    }
 
+            if (invalidString(user)) {
+                status.message = 'Username contains invalid tokens: >,<,;,-';
+            } else {
+
+                if (err) {
+                    status.message = 'Internal server error';
+                } else if (!rows[0]) {
+                    status.message = 'Wrong username';
+                }
+                else {
+                    if (rows[0].username && rows[0].password) {
+                        //login was successful or not
+                        status.success = password === rows[0].password;
+                        if (!status.success) {
+                            status.message = 'Wrong password';
+                        }
+                        if (rows[0].image && status.success) {
+                            status.image = rows[0].image;
+                        }
+
+                    }
                 }
             }
             resolve(status);
         });
+
+
     });
 }
 
@@ -39,7 +47,7 @@ function register(user, password, image) {
     user = user.toLowerCase();
     let status = {success: false, message: ''};
     return new Promise((resolve, reject) => {
-        if (user && password) {
+        if (!invalidString(user)&& !invalidString(password)) { //Strings must be valid
             let query = '';
             //image is alternatively
             if (image) {
@@ -48,7 +56,6 @@ function register(user, password, image) {
 
             connection.query(query, (err) => {
                 if (err) {
-                    console.log(err);
                     status.message = 'Something went horribly wrong!  '; //If username already taken an error is thrown
                 } else {
                     status.success = true;
@@ -56,12 +63,16 @@ function register(user, password, image) {
                 resolve(status);
             });
         } else {
-            status.message = 'There is a problem with the username or password! Please try again!  ';
+            status.message = 'There is a problem with the username or password! Please try again! Invalid characters: <,>,;,- ';
             resolve(status);
         }
     });
 }
 
+
+function invalidString(string) {
+    return (!string ||string.includes('<') || string.includes('>') || string.includes(';') || string.includes('-'));
+}
 
 
 module.exports = {login, register};

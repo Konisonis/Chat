@@ -162,6 +162,11 @@ io.on('connection', (socket) => {
     //receiving a chat message
     socket.on('chat message', (message) => {
         let user = socket.user;
+
+        if(corrupMessage(message)){
+            message='';
+        }
+
         if (socket.user && message) {
             moodService.getMood(message).then((mood) => {
                 Object.entries(connectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
@@ -182,6 +187,10 @@ io.on('connection', (socket) => {
     //Send a message only to one specific client
     socket.on('private message', (message, receiver) => {
         //connectedUsers contains the sockets from each logged in user
+
+        if(corrupMessage(message)){
+            message='';
+        }
 
         let receiverSocket = connectedUsers[receiver];
         let user = socket.user;
@@ -244,6 +253,10 @@ function readImageFile(file) {
     const bitmap = fs.readFileSync(file);
     const buf = new Buffer(bitmap).toString('base64');
     return buf;
+}
+
+function corrupMessage(message){
+    return message.includes('<script' || 'script>' || 'scr='|| 'href=');
 }
 
 
