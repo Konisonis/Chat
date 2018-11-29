@@ -14,6 +14,27 @@ const moodService = require('./modules/mood_module');
 const faceRecognition = require('./modules/face_recognition_module');
 const fs = require('fs');
 
+// content-security-policy
+const cspPolicy = {
+    'report-uri': '/reporting',
+    'default-src': csp.SRC_NONE,
+    'script-src': [ csp.SRC_SELF, csp.SRC_DATA ]
+};
+
+const globalCSP = csp.getCSP(csp.STARTER_OPTIONS);
+const localCSP = csp.getCSP(cspPolicy);
+
+// This will apply this policy to all requests if no local policy is set
+app.use(globalCSP);
+app.get('/', (req, res) => {
+    res.send('Using global content security policy!');
+});
+// This will apply the local policy just to this path, overriding the globla policy
+app.get('/local', localCSP, (req, res) => {
+    res.send('Using path local content security policy!');
+});
+
+
 //force https connection
 const helmet = require("helmet");
 app.use(helmet()); // Add Helmet as a middleware
@@ -23,12 +44,10 @@ const ss = require('socket.io-stream');
 //table to access sockets with username ==> {username:socket}
 let connectedUsers = {};
 
-const globalCSP = csp.getCSP(csp.STARTER_OPTIONS);
 
 //enable access to the public folder and simplify node modules paths
 app.use("/public", express.static(__dirname + "/public"));
 app.use('/bootstrap-material', express.static(__dirname + '/node_modules/bootstrap-material-design'));
-app.use(globalCSP);
 app.get('/socket.io-stream.js', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/socket.io-stream/socket.io-stream.js');
 });
@@ -43,6 +62,7 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
 });
 
+
 //Socket.io
 io.on('connection', (socket) => {
 
@@ -50,7 +70,7 @@ io.on('connection', (socket) => {
     socket.on('registration',(username,password,callback)=>{
         try{//status status.success is true if registration was successfull
             database.register(username,password,socket.image).then((status)=>{
-                    callback(status.success, status.message);
+                callback(status.success, status.message);
             });
 
         }catch(err){
