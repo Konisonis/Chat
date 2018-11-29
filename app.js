@@ -24,17 +24,6 @@ const cspPolicy = {
 const globalCSP = csp.getCSP(csp.STARTER_OPTIONS);
 const localCSP = csp.getCSP(cspPolicy);
 
-// This will apply this policy to all requests if no local policy is set
-app.use(globalCSP);
-app.get('/', (req, res) => {
-    res.send('Using global content security policy!');
-});
-// This will apply the local policy just to this path, overriding the globla policy
-app.get('/local', localCSP, (req, res) => {
-    res.send('Using path local content security policy!');
-});
-
-
 //force https connection
 const helmet = require("helmet");
 app.use(helmet()); // Add Helmet as a middleware
@@ -60,6 +49,13 @@ app.get('/bootstrap-icons.scss', (req, res, next) => {
 //routes
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
+});
+// This will apply the security policy to all requests if no local policy is set
+app.use(globalCSP);
+app.get('/', (req, res) => {
+});
+// This will apply the local security policy just to this path, overriding the global policy
+app.get('/local', localCSP, (req, res) => {
 });
 
 
