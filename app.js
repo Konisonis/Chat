@@ -28,6 +28,7 @@ let connectedUsers = {};
 //enable access to the public folder and simplify node modules paths
 app.use("/public", express.static(__dirname + "/public"));
 app.use('/bootstrap-material', express.static(__dirname + '/node_modules/bootstrap-material-design'));
+app.use("/", express.static(__dirname + "DomainVerification.html"));
 app.get('/socket.io-stream.js', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/socket.io-stream/socket.io-stream.js');
 });
