@@ -14,17 +14,6 @@ const moodService = require('./modules/mood_module');
 const faceRecognition = require('./modules/face_recognition_module');
 const fs = require('fs');
 
-// content-security-policy
-const cspPolicy = {
-    'report-uri': '/reporting',
-    'default-src': csp.SRC_NONE,
-    'script-src': [ csp.SRC_SELF, csp.SRC_DATA ]
-};
-
-const globalCSP = csp.getCSP(csp.STARTER_OPTIONS);
-app.use(globalCSP);
-
-
 //force https connection
 const helmet = require("helmet");
 app.use(helmet()); // Add Helmet as a middleware
@@ -34,10 +23,12 @@ const ss = require('socket.io-stream');
 //table to access sockets with username ==> {username:socket}
 let connectedUsers = {};
 
+const globalCSP = csp.getCSP(csp.STARTER_OPTIONS);
 
 //enable access to the public folder and simplify node modules paths
 app.use("/public", express.static(__dirname + "/public"));
 app.use('/bootstrap-material', express.static(__dirname + '/node_modules/bootstrap-material-design'));
+app.use(globalCSP);
 app.get('/socket.io-stream.js', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/socket.io-stream/socket.io-stream.js');
 });
@@ -51,7 +42,6 @@ app.get('/bootstrap-icons.scss', (req, res, next) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
 });
-
 
 //Socket.io
 io.on('connection', (socket) => {
