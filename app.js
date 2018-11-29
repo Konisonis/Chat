@@ -31,13 +31,15 @@ app.use('/bootstrap-material', express.static(__dirname + '/node_modules/bootstr
 app.get('/socket.io-stream.js', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/socket.io-stream/socket.io-stream.js');
 });
+app.get('/DomainVerification.html', (req, res, next) => {
+    return res.sendFile(__dirname + '/DomainVerification.html');
+});
 app.get('/bootstrap-icons.scss', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/material-icons/iconfont/material-icons.scss');
 });
 //routes
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
-    res.sendFile(__dirname + '/DomainVerification.html');
 });
 
 
