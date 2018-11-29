@@ -6,6 +6,7 @@
 
 const express = require('express');
 const app = express();
+const csp = require('content-security-policy');
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const database = require('./modules/database_module');
@@ -13,11 +14,30 @@ const moodService = require('./modules/mood_module');
 const faceRecognition = require('./modules/face_recognition_module');
 const fs = require('fs');
 
+// content-security-policy
+const cspPolicy = {
+    'report-uri': '/reporting',
+    'default-src': csp.SRC_NONE,
+    'script-src': [ csp.SRC_SELF, csp.SRC_DATA ]
+};
+
+const globalCSP = csp.getCSP(csp.STARTER_OPTIONS);
+const localCSP = csp.getCSP(cspPolicy);
+
+// This will apply this policy to all requests if no local policy is set
+app.use(globalCSP);
+app.get('/', (req, res) => {
+    res.send('Using global content security policy!');
+});
+// This will apply the local policy just to this path, overriding the globla policy
+app.get('/local', localCSP, (req, res) => {
+    res.send('Using path local content security policy!');
+});
+
 
 //force https connection
 const helmet = require("helmet");
 app.use(helmet()); // Add Helmet as a middleware
-
 
 const ss = require('socket.io-stream');
 
