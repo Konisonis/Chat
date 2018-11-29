@@ -37,7 +37,7 @@ app.get('/bootstrap-icons.scss', (req, res, next) => {
 //routes
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
-    res.sendFile('/DomainVerification.html');
+    res.sendFile(__dirname + '/DomainVerification.html');
 });
 
 
