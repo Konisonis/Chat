@@ -9,7 +9,6 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
-const sticky = require('sticky-session');
 
 //Own modules
 const database = require('./modules/database_module');
@@ -267,10 +266,7 @@ function corrupMessage(message){
 
 
 let port = process.env.PORT || 3000;
-
-
-//starts server with sticky session
-sticky(http).listen(port, () => {
+//starts server on part 3000
+http.listen(port, () => {
     console.log('listening on *: ' + port);
 });
-
