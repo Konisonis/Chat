@@ -270,15 +270,7 @@ let port = process.env.PORT || 3000;
 
 
 //starts server with sticky session
-/*sticky(http).listen(port, () => {
+sticky(http).listen(port, () => {
     console.log('listening on *: ' + port);
-});*/
+});
 
-if (!sticky.listen(http, 3000)) {
-    // Master code
-    http.once('listening', ()=> {
-        console.log('server started on 3000 port');
-    });
-} else {
-    console.log('Worker node');
-}
