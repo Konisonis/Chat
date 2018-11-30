@@ -6,27 +6,19 @@
 
 const express = require('express');
 const app = express();
-const csp = require('content-security-policy');
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const fs = require('fs');
+
+//Own modules
 const database = require('./modules/database_module');
 const moodService = require('./modules/mood_module');
 const faceRecognition = require('./modules/face_recognition_module');
-const fs = require('fs');
+const security = require('./modules/security_module');
 
-// content-security-policy
-const cspPolicy = {
-    'report-uri': '/reporting',
-    'default-src': csp.SRC_NONE,
-    'script-src': [ csp.SRC_SELF, csp.SRC_DATA ]
-};
 
-const globalCSP = csp.getCSP(csp.STARTER_OPTIONS);
-const localCSP = csp.getCSP(cspPolicy);
 
-//force https connection
-const helmet = require("helmet");
-app.use(helmet()); // Add Helmet as a middleware
+
 
 const ss = require('socket.io-stream');
 
@@ -50,19 +42,16 @@ app.get('/bootstrap-icons.scss', (req, res, next) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
 });
-// This will apply the security policy to all requests if no local policy is set
-app.use(globalCSP);
-app.get('/', (req, res) => {
-});
-// This will apply the local security policy just to this path, overriding the global policy
-app.get('/local', localCSP, (req, res) => {
-});
+
+
+//app security
+security.secureApp(app);
 
 
 //Socket.io
 io.on('connection', (socket) => {
 
-
+    //new user registration
     socket.on('registration',(username,password,callback)=>{
         try{//status status.success is true if registration was successfull
             database.register(username,password,socket.image).then((status)=>{
@@ -73,6 +62,7 @@ io.on('connection', (socket) => {
             console.log(err);
         }
     });
+    //on receiving a profile picture
     ss(socket).on('profile picture', (stream, data) => {
         try {
             let path = './pictures/' + data.name;
@@ -106,9 +96,8 @@ io.on('connection', (socket) => {
             //username already in use, the user is already logged in or not valid
             if (connectedUsers[username] || socket.user || !username) {
                 callback(false);
-                //if username is accepted and login was successful
             } else {
-
+                //username has been accepted and login was successful
                 database.login(username,password).then((status)=>{
                     if(status.success){
                         socket.user = username;
