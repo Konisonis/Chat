@@ -9,15 +9,13 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
+const sticky = require('sticky-session');
 
 //Own modules
 const database = require('./modules/database_module');
 const moodService = require('./modules/mood_module');
 const faceRecognition = require('./modules/face_recognition_module');
 const security = require('./modules/security_module');
-
-
-
 
 
 const ss = require('socket.io-stream');
@@ -269,7 +267,18 @@ function corrupMessage(message){
 
 
 let port = process.env.PORT || 3000;
-//starts server on part 3000
-http.listen(port, () => {
+
+
+//starts server with sticky session
+/*sticky(http).listen(port, () => {
     console.log('listening on *: ' + port);
-});
+});*/
+
+if (!sticky.listen(http, 3000)) {
+    // Master code
+    http.once('listening', ()=> {
+        console.log('server started on 3000 port');
+    });
+} else {
+    console.log('Worker node');
+}
