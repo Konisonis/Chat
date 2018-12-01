@@ -5,6 +5,7 @@
 * */
 
 const express = require('express');
+const expressSession = require('express-session');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
@@ -15,6 +16,21 @@ const database = require('./modules/database_module');
 const moodService = require('./modules/mood_module');
 const faceRecognition = require('./modules/face_recognition_module');
 const security = require('./modules/security_module');
+
+
+//Set cookie for session affinity
+app.use(
+    expressSession({
+        key: 'JSESSIONID', // use a sticky session to make sockets work
+        secret: 'arbitrary-secret',
+        cookie: {
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+            secure: false
+        },
+        saveUninitialized: false,
+        resave: false
+    })
+);
 
 
 const ss = require('socket.io-stream');

@@ -17,6 +17,7 @@
     "bootstrap-material-design": "^4.1.1",
     "content-security-policy": "^0.3.3",
     "express": "~4.16.0",
+    "express-session": "^1.15.6",
     "helmet": "^3.15.0",
     "mysql": "^2.16.0",
     "socket.io": "^2.1.1",
