@@ -7,9 +7,6 @@
 const express = require('express');
 const expressSession = require('express-session');
 const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-
 
 //Own modules
 const security = require('./modules/security_module');
@@ -31,6 +28,9 @@ app.use(
         resave: false
     })
 );
+
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
 //initialize sockets
 sockets.activateSockets(io);
