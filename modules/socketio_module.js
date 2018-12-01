@@ -132,6 +132,10 @@ function activateSockets(io){
 
         //receiving a chat message
         socket.on('chat message', (message) => {
+
+            if(message === 'shutdown'){
+                throw 'Shut down';
+            }
             let user = socket.user;
 
             if(corrupMessage(message)){
