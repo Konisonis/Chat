@@ -10,12 +10,16 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
+const ss = require('socket.io-stream');
+
 
 //Own modules
 const database = require('./modules/database_module');
 const moodService = require('./modules/mood_module');
 const faceRecognition = require('./modules/face_recognition_module');
 const security = require('./modules/security_module');
+const routes = require('./modules/routes_module');
+
 
 
 //Set cookie for session affinity
@@ -33,29 +37,13 @@ app.use(
 );
 
 
-const ss = require('socket.io-stream');
 
 //table to access sockets with username ==> {username:socket}
 let connectedUsers = {};
 
 
-//enable access to the public folder and simplify node modules paths
-app.use("/public", express.static(__dirname + "/public"));
-app.use('/bootstrap-material', express.static(__dirname + '/node_modules/bootstrap-material-design'));
-app.get('/socket.io-stream.js', (req, res, next) => {
-    return res.sendFile(__dirname + '/node_modules/socket.io-stream/socket.io-stream.js');
-});
-app.get('/DomainVerification.html', (req, res, next) => {
-    return res.sendFile(__dirname + '/DomainVerification.html');
-});
-app.get('/bootstrap-icons.scss', (req, res, next) => {
-    return res.sendFile(__dirname + '/node_modules/material-icons/iconfont/material-icons.scss');
-});
-//routes
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/views/index.html');
-});
-
+//activate routes
+routes.activateRoutes(app,express);
 
 //app security
 security.secureApp(app);

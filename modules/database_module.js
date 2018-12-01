@@ -56,7 +56,7 @@ function register(user, password, image) {
 
             connection.query(query, (err) => {
                 if (err) {
-                    status.message = 'Something went horribly wrong!  '; //If username already taken an error is thrown
+                    status.message = 'Username already taken!  '; //If username already taken an error is thrown
                 } else {
                     status.success = true;
                 }
