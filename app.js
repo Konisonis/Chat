@@ -7,12 +7,15 @@
 const express = require('express');
 const expressSession = require('express-session');
 const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const cookieParser = require('cookie-parser');
+
 
 //Own modules
 const security = require('./modules/security_module');
 const routes = require('./modules/routes_module');
 const sockets = require('./modules/socketio_module');
-
 
 
 //Set cookie for session affinity
@@ -24,13 +27,10 @@ app.use(
             maxAge: 24 * 60 * 60 * 1000, // 1 day
             secure: false
         },
-        saveUninitialized: false,
+        saveUninitialized: true,
         resave: false
     })
 );
-
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
 
 //initialize sockets
 sockets.activateSockets(io);
