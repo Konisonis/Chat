@@ -17,7 +17,7 @@ const localCSP = csp.getCSP(cspPolicy);
 function secureApp(app){
 
     app.use(helmet()); // Add Helmet as a middleware
-
+    app.use(helmet.xssFilter())
 
 // This will apply the security policy to all requests if no local policy is set
     app.use(globalCSP);
