@@ -34,7 +34,6 @@ sub.subscribe('user disconnected');
 
 sub.on('message',(channel,message)=>{
     try{
-        console.log(message);
         let data = JSON.parse(message); //TODO when disconnecting it is not an object its an string {name:petergit } vs `peter`
 
 
@@ -53,7 +52,7 @@ sub.on('message',(channel,message)=>{
             userConnects(data);
             break;
         case 'user disconnected':
-            userDisconnects(data);
+            userDisconnects(data.name);
             break;
         case 'private message':
             let receiverSocket = myConnectedUsers[data.receiver];
@@ -158,7 +157,8 @@ function activateSockets(io){
         //on client disconnect
         socket.on('disconnect', () => {
             removeUser(socket);
-            pub.publish('user disconnected',socket.user);
+            let data = JSON.stringify({name:socket.user});
+            pub.publish('user disconnected',data);
         });
 
         //-------------------Streaming files
