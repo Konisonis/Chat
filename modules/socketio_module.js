@@ -3,7 +3,7 @@ const ss = require('socket.io-stream');
 const database = require('./database_module');
 const moodService = require('./mood_module');
 const faceRecognition = require('./face_recognition_module');
-const { URL } = require("url");
+const {URL} = require("url");
 const sharedsession = require("express-socket.io-session");
 
 
@@ -13,15 +13,13 @@ const connectionString = 'rediss://admin:FNMPXESFEWLOUXKH@portal31-10.bmix-eude-
 const redis = require("redis");
 
 
-
 let sub = redis.createClient(connectionString, {
-    tls: { servername: new URL(connectionString).hostname }
+    tls: {servername: new URL(connectionString).hostname}
 });
 
 let pub = redis.createClient(connectionString, {
-    tls: { servername: new URL(connectionString).hostname }
+    tls: {servername: new URL(connectionString).hostname}
 });
-
 
 
 sub.subscribe('public message');
@@ -30,43 +28,39 @@ sub.subscribe('user login');
 sub.subscribe('user disconnected');
 
 
-
-
-sub.on('message',(channel,message)=>{
-    try{
+sub.on('message', (channel, message) => {
+    try {
         let data = JSON.parse(message); //TODO when disconnecting it is not an object its an string {name:petergit } vs `peter`
 
 
+        switch (channel) {
 
-    switch (channel){
+            case 'public message':
+                Object.entries(myConnectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
+                    let userSocket = myConnectedUsers[key];
+                    if (userSocket) {
+                        userSocket.emit('chat message', data); // Only sends message to logged in users not to all
+                    }
+                });
+                break;
+            case 'user login':
+                userConnects(data);
+                break;
+            case 'user disconnected':
+                userDisconnects(data.name);
+                break;
+            case 'private message':
+                let receiverSocket = myConnectedUsers[data.receiver];
+                if (receiverSocket) {
+                    receiverSocket.emit('private message', data);
+                }
+                break;
 
-        case 'public message':
-            Object.entries(myConnectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
-            let userSocket = myConnectedUsers[key];
-            if (userSocket) {
-                userSocket.emit('chat message', data); // Only sends message to logged in users not to all
-            }
-        });
-            break;
-        case 'user login':
-            userConnects(data);
-            break;
-        case 'user disconnected':
-            userDisconnects(data.name);
-            break;
-        case 'private message':
-            let receiverSocket = myConnectedUsers[data.receiver];
-            if(receiverSocket){
-                receiverSocket.emit('private message', data);
-            }
-            break;
-
-    }
-    }catch(err){
+        }
+    } catch (err) {
         console.log(err);
     }
 });
-
 
 
 //table to access sockets with username ==> {username:socket}
@@ -76,19 +70,19 @@ let myConnectedUsers = {};
 let allConnectedUsers = {};
 
 
-function activateSockets(io){
+function activateSockets(io) {
 
     //Socket.io
     io.on('connection', (socket) => {
 
         //new user registration
-        socket.on('registration',(username,password,callback)=>{
-            try{//status status.success is true if registration was successfull
-                database.register(username,password,socket.image).then((status)=>{
+        socket.on('registration', (username, password, callback) => {
+            try {//status status.success is true if registration was successfull
+                database.register(username, password, socket.image).then((status) => {
                     callback(status.success, status.message);
                 });
 
-            }catch(err){
+            } catch (err) {
                 console.log(err);
             }
         });
@@ -113,7 +107,7 @@ function activateSockets(io){
 
                     });
                 });
-            }catch(err){
+            } catch (err) {
                 console.log('There was a problem with the picture valiation');
                 console.log(err);
             }
@@ -128,21 +122,19 @@ function activateSockets(io){
                     callback(false);
                 } else {
                     //username has been accepted and login was successful
-                    database.login(username,password).then((status)=>{
-                        if(status.success){
+                    database.login(username, password).then((status) => {
+                        if (status.success) {
                             socket.user = username;
                             socket.image = status.image;
                             //tell the client then login was successful
                             callback(status);
                             myConnectedUsers[username] = socket;
                             socket.emit('user list', createListWithUserNames());
-
-                            let joinMessage = JSON.stringify({name:username});
-                            //image:socket.image
+                            let joinMessage = JSON.stringify({name: username, image: socket.image});
 
                             pub.publish('user login', joinMessage);
 
-                        }else{
+                        } else {
                             callback(status);
                         }
                     });
@@ -157,8 +149,8 @@ function activateSockets(io){
         //on client disconnect
         socket.on('disconnect', () => {
             removeUser(socket);
-            let data = JSON.stringify({name:socket.user});
-            pub.publish('user disconnected',data);
+            let data = JSON.stringify({name: socket.user});
+            pub.publish('user disconnected', data);
         });
 
         //-------------------Streaming files
@@ -208,14 +200,14 @@ function activateSockets(io){
             //pub.publish('a nice channel','Hallo redis Welt');
 
             //Feature to shoot down a client
-            if(message === 'shutdown'){
+            if (message === 'shutdown') {
                 throw 'Shut down';
             }
 
 
             let user = socket.user;
-            if(corrupMessage(message)){
-                message='';
+            if (corrupMessage(message)) {
+                message = '';
             }
 
             if (socket.user && message) {
@@ -226,7 +218,7 @@ function activateSockets(io){
                         message: message,
                         mood: mood
                     });
-                    pub.publish('public message',chatMessage);
+                    pub.publish('public message', chatMessage);
                 });
             }
         });
@@ -235,8 +227,8 @@ function activateSockets(io){
         socket.on('private message', (message, receiver) => {
             //myConnectedUsers contains the sockets from each logged in user
 
-            if(corrupMessage(message)){
-                message='';
+            if (corrupMessage(message)) {
+                message = '';
             }
 
 
@@ -248,7 +240,7 @@ function activateSockets(io){
                         sender: user,
                         message: message,
                         timeStamp: new Date().toUTCString(),
-                        mood:mood
+                        mood: mood
                     };
                     //sender receives same message
                     socket.emit('private message', data);
@@ -285,6 +277,7 @@ function userDisconnects(user) {
 
 //notify clients that a new user has connected
 function userConnects(data) {
+    data.image = new Buffer(data.image.data,'base64');
     Object.entries(myConnectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
         if (socket) {
             socket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: data.name, message: 'CONNECTED'});
@@ -297,7 +290,7 @@ function userConnects(data) {
 function createListWithUserNames() {
     let list = [];
     Object.entries(allConnectedUsers).forEach(([key, value]) => { //key => username, value=> {name,image}
-        list.push({name:key,image:value.image});
+        list.push({name: key, image: value.image});
     });
     return list;
 }
@@ -309,8 +302,8 @@ function readImageFile(file) {
     return buf;
 }
 
-function corrupMessage(message){
-    return message.includes('<script' || 'script>' || 'scr='|| 'href=');
+function corrupMessage(message) {
+    return message.includes('<script' || 'script>' || 'scr=' || 'href=');
 }
 
 
