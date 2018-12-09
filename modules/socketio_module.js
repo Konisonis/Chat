@@ -125,16 +125,16 @@ function activateSockets(io) {
         //-------------------handle login
         //new client log-in
         socket.on('login', (username, password, callback) => {
-
             //if username is already taken
             try {
                 //username already in use, the user is already logged in or not valid
                 if (myConnectedUsers[username] || socket.user || !username) {
-                    callback(false);
+                    callback({success: false, message: 'already logged in'});
                 } else {
                     //username has been accepted and login was successful
                     database.login(username, password).then((status) => {
                         if (status.success) {
+
                             socket.user = username;
                             socket.image = status.image;
                             //tell the client then login was successful
@@ -149,7 +149,6 @@ function activateSockets(io) {
                                 image: socket.image
                             };
                             socket.handshake.session.save();
-
                             pub.publish('user login', joinMessage);
 
                         } else {
@@ -268,10 +267,15 @@ function activateSockets(io) {
             }
         });
 
+        //On user logout
         socket.on('logout', () => {
             if (socket.user) {
-                removeUser(socket.user);
+                removeUser(socket);
+                delete socket.handshake.session.userdata;
+                socket.handshake.session.save();
+
                 let data = JSON.stringify({name: socket.user});
+                socket.user = undefined;
                 pub.publish('user disconnected', data);
             }
         });

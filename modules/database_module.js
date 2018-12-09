@@ -25,6 +25,7 @@ function login(user, password) {
                     if (rows[0].username && rows[0].password) {
                         //login was successful or not
                         status.success = password === rows[0].password;
+
                         if (!status.success) {
                             status.message = 'Wrong password';
                         }

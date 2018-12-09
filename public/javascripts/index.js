@@ -293,11 +293,18 @@ $(() => {
     });
 
     $('#logout').click(()=>{
+
+        //reset all data
         socket.emit('logout');
         $('#chat').hide();
         $('#front-page').show();
         $('#yourName').text('');
         $('#profile-picture').attr("src",'');
+
+        $('#messages').empty();
+
+         homeChat = [];
+         userList = {};
     });
 
 
