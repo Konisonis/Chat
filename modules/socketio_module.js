@@ -75,14 +75,14 @@ function activateSockets(io) {
     //Socket.io
     io.on('connection', (socket) => {
         let data = socket.handshake.session.userdata;
-        if(data){
-            let image = data.image ? new Buffer(data.image.data,'base64'): undefined;
-            socket.emit('chat dispatch',{success:true,image:image},data.username);
+        if (data) {
+            let image = data.image ? new Buffer(data.image.data, 'base64') : undefined;
+            socket.emit('chat dispatch', {success: true, image: image}, data.username);
             myConnectedUsers[data.username] = socket;
             socket.user = data.username;
             socket.emit('user list', createListWithUserNames());
-            let userData = JSON.stringify({name:data.username, image:data.image});
-            pub.publish('user login',userData );
+            let userData = JSON.stringify({name: data.username, image: data.image});
+            pub.publish('user login', userData);
         }
 
         //new user registration
@@ -143,7 +143,11 @@ function activateSockets(io) {
                             socket.emit('user list', createListWithUserNames());
                             let joinMessage = JSON.stringify({name: username, image: socket.image});
 
-                            socket.handshake.session.userdata = {username:username,password:password,image:socket.image};
+                            socket.handshake.session.userdata = {
+                                username: username,
+                                password: password,
+                                image: socket.image
+                            };
                             socket.handshake.session.save();
 
                             pub.publish('user login', joinMessage);
@@ -264,6 +268,14 @@ function activateSockets(io) {
             }
         });
 
+        socket.on('logout', () => {
+            if (socket.user) {
+                removeUser(socket.user);
+                let data = JSON.stringify({name: socket.user});
+                pub.publish('user disconnected', data);
+            }
+        });
+
 
     });
 
@@ -291,7 +303,7 @@ function userDisconnects(user) {
 
 //notify clients that a new user has connected
 function userConnects(data) {
-    data.image = new Buffer(data.image.data,'base64');
+    data.image = new Buffer(data.image.data, 'base64');
     Object.entries(myConnectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
         if (socket) {
             socket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: data.name, message: 'CONNECTED'});
