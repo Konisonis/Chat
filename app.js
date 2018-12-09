@@ -10,6 +10,7 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const cookieParser = require('cookie-parser');
+const sharedsession = require("express-socket.io-session");
 
 
 //Own modules
@@ -17,26 +18,29 @@ const security = require('./modules/security_module');
 const routes = require('./modules/routes_module');
 const sockets = require('./modules/socketio_module');
 
+const session = expressSession({
+    key: 'JSESSIONID', // use a sticky session to make sockets work
+    secret: 'arbitrary-secret',
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        secure: false
+    },
+    saveUninitialized: true,
+    resave: true
+});
+
+
+//activate to recognize active session
+io.use(sharedsession(session));
 
 //Set cookie for session affinity
-app.use(
-    expressSession({
-        key: 'JSESSIONID', // use a sticky session to make sockets work
-        secret: 'arbitrary-secret',
-        cookie: {
-            maxAge: 24 * 60 * 60 * 1000, // 1 day
-            secure: true
-        },
-        saveUninitialized: true,
-        resave: false
-    })
-);
+app.use(session);
 
 //initialize sockets
 sockets.activateSockets(io);
 
 //activate routes
-routes.activateRoutes(app,express);
+routes.activateRoutes(app, express);
 
 //app security
 security.secureApp(app);

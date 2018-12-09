@@ -25,6 +25,7 @@
     "mysql": "^2.16.0",
     "redis": "^2.8.0",
     "redis-url": "^1.2.1",
+    "session.socket.io": "^0.2.1",
     "socket.io": "^2.2.0",
     "socket.io-stream": "^0.9.1",
     "watson-developer-cloud": "^3.13.1"

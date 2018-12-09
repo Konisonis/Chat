@@ -30,7 +30,7 @@ sub.subscribe('user disconnected');
 
 sub.on('message', (channel, message) => {
     try {
-        let data = JSON.parse(message); //TODO when disconnecting it is not an object its an string {name:petergit } vs `peter`
+        let data = JSON.parse(message);
 
 
         switch (channel) {
@@ -74,6 +74,16 @@ function activateSockets(io) {
 
     //Socket.io
     io.on('connection', (socket) => {
+        let data = socket.handshake.session.userdata;
+        if(data){
+            let image = data.image ? new Buffer(data.image.data,'base64'): undefined;
+            socket.emit('chat dispatch',{success:true,image:image},data.username);
+            myConnectedUsers[data.username] = socket;
+            socket.user = data.username;
+            socket.emit('user list', createListWithUserNames());
+            let userData = JSON.stringify({name:data.username, image:data.image});
+            pub.publish('user login',userData );
+        }
 
         //new user registration
         socket.on('registration', (username, password, callback) => {
@@ -115,6 +125,7 @@ function activateSockets(io) {
         //-------------------handle login
         //new client log-in
         socket.on('login', (username, password, callback) => {
+
             //if username is already taken
             try {
                 //username already in use, the user is already logged in or not valid
@@ -131,6 +142,9 @@ function activateSockets(io) {
                             myConnectedUsers[username] = socket;
                             socket.emit('user list', createListWithUserNames());
                             let joinMessage = JSON.stringify({name: username, image: socket.image});
+
+                            socket.handshake.session.userdata = {username:username,password:password,image:socket.image};
+                            socket.handshake.session.save();
 
                             pub.publish('user login', joinMessage);
 

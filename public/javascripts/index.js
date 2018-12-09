@@ -51,7 +51,6 @@ $(() => {
     $('#registerForm').submit((event)=>{
         event.preventDefault();
 
-
         let user = $('#register-user').val();
         let password = $('#register-password').val();
         let confirmPassword = $('#register-confirm-password').val();
@@ -76,8 +75,6 @@ $(() => {
         }
 
     });
-
-
 
     //upload a profile picture
     $('#profile-pic').change((e) => {
@@ -146,6 +143,15 @@ $(() => {
     socket.on('chat message', (messageObj = {timeStamp, sender, message,mood}) => {
         homeChat.push(messageObj);
         appendMessageToChat(messageObj);
+    });
+
+
+    //session is active and user can chat without login
+    socket.on('chat dispatch',(status,username)=>{
+        if(!$('#yourName').text()){
+            handleLogin(status,username);
+        }
+
     });
 
     //receiving a private message
