@@ -3,25 +3,14 @@ const ss = require('socket.io-stream');
 const database = require('./database_module');
 const moodService = require('./mood_module');
 const faceRecognition = require('./face_recognition_module');
-const {URL} = require("url");
-const sharedsession = require("express-socket.io-session");
+const redisModule = require('./redis_module');
+
+const sub = redisModule.sub;
+const pub = redisModule.pub;
 
 
-const connectionString = 'rediss://admin:FNMPXESFEWLOUXKH@portal31-10.bmix-eude-yp-b9583787-c860-4775-bf63-8b1bd8af652f.4244332677.composedb.com:18717';
 
-
-const redis = require("redis");
-
-
-let sub = redis.createClient(connectionString, {
-    tls: {servername: new URL(connectionString).hostname}
-});
-
-let pub = redis.createClient(connectionString, {
-    tls: {servername: new URL(connectionString).hostname}
-});
-
-
+//Redis pubs and subs
 sub.subscribe('public message');
 sub.subscribe('private message');
 sub.subscribe('user login');
@@ -31,10 +20,7 @@ sub.subscribe('user disconnected');
 sub.on('message', (channel, message) => {
     try {
         let data = JSON.parse(message);
-
-
         switch (channel) {
-
             case 'public message':
                 Object.entries(myConnectedUsers).forEach(([key, value]) => {  //key => username, value=> socket
                     let userSocket = myConnectedUsers[key];
@@ -55,7 +41,6 @@ sub.on('message', (channel, message) => {
                     receiverSocket.emit('private message', data);
                 }
                 break;
-
         }
     } catch (err) {
         console.log(err);

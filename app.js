@@ -5,39 +5,29 @@
 * */
 
 const express = require('express');
-const expressSession = require('express-session');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const cookieParser = require('cookie-parser');
 const sharedsession = require("express-socket.io-session");
 
-
 //Own modules
 const security = require('./modules/security_module');
 const routes = require('./modules/routes_module');
 const sockets = require('./modules/socketio_module');
+const redisModule = require('./modules/redis_module');
 
-const session = expressSession({
-    key: 'JSESSIONID', // use a sticky session to make sockets work
-    secret: 'arbitrary-secret',
-    cookie: {
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
-        secure: false
-    },
-    saveUninitialized: true,
-    resave: true
-});
 
 
 //activate to recognize active session
-io.use(sharedsession(session));
+io.use(sharedsession(redisModule.session));
 
 //Set cookie for session affinity
-app.use(session);
+app.use(redisModule.session);
 
 //initialize sockets
 sockets.activateSockets(io);
+
 
 //activate routes
 routes.activateRoutes(app, express);
