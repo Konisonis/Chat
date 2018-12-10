@@ -1,5 +1,5 @@
 ---
 applications:
-- name: chatter
+- name: better-chatter
   memory: 512M
-  instances: 1
+  instances: 2

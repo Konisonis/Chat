@@ -61,7 +61,6 @@ function activateSockets(io) {
     io.on('connection', (socket) => {
         //check session
         let data = socket.handshake.session.userdata;
-        console.log('Socket connection',data);
 
         if (data) {
             let image = data.image ? new Buffer(data.image.data, 'base64') : undefined;

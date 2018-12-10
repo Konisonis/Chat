@@ -3,7 +3,7 @@ const redis = require("redis");
 const expressSession = require('express-session');
 const RedisStore = require('connect-redis')(expressSession);
 
-const connectionString = 'rediss://admin:FNMPXESFEWLOUXKH@portal31-10.bmix-eude-yp-b9583787-c860-4775-bf63-8b1bd8af652f.4244332677.composedb.com:18717';
+const connectionString = 'redis://admin:FNMPXESFEWLOUXKH@portal31-10.bmix-eude-yp-b9583787-c860-4775-bf63-8b1bd8af652f.4244332677.composedb.com:18717';
 
 
 //Session store for Redis

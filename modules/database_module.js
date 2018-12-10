@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const passwordHash = require('password-hash');
 
 
 //MySQL Database connection
@@ -24,7 +25,7 @@ function login(user, password) {
                 else {
                     if (rows[0].username && rows[0].password) {
                         //login was successful or not
-                        status.success = password === rows[0].password;
+                        status.success = passwordHash.verify(password, rows[0].password);
 
                         if (!status.success) {
                             status.message = 'Wrong password';
@@ -49,11 +50,12 @@ function register(user, password, image) {
     let status = {success: false, message: ''};
     return new Promise((resolve, reject) => {
         if (!invalidString(user)&& !invalidString(password)) { //Strings must be valid
+            let hashedPassword = passwordHash.generate(password);
             let query = '';
             //image is alternatively
             if (image) {
-                query = 'insert into users(username,password,image) values("' + user + '","' + password + '","' + image + '");';
-            } else query = 'insert into users(username,password) values("' + user + '","' + password + '");';
+                query = 'insert into users(username,password,image) values("' + user + '","' + hashedPassword + '","' + image + '");';
+            } else query = 'insert into users(username,password) values("' + user + '","' + hashedPassword + '");';
 
             connection.query(query, (err) => {
                 if (err) {
@@ -70,7 +72,7 @@ function register(user, password, image) {
     });
 }
 
-
+//in case string is invalid
 function invalidString(string) {
     return (!string ||string.includes('<') || string.includes('>') || string.includes(';') || string.includes('-'));
 }
