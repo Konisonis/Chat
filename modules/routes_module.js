@@ -17,11 +17,15 @@ function activateRoutes(app, express) {
     });
 //routes
     app.get('/', (req, res) => {
+        //renew session object for sticky sessions
+        /*
         let userdata = req.session.userdata;
         req.session.regenerate((err)=> {
             req.session.userdata = userdata;
-            res.sendFile(appDir + '/views/index.html');
         });
+        */
+            res.sendFile(appDir + '/views/index.html');
+
     });
 }
 
