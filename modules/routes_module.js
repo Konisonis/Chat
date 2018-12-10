@@ -2,7 +2,7 @@ const path = require('path');
 const appDir = path.dirname(require.main.filename);
 
 
-function activateRoutes(app,express) {
+function activateRoutes(app, express) {
     //enable access to the public folder and simplify node modules paths
     app.use("/public", express.static(appDir + "/public"));
     app.use('/bootstrap-material', express.static(appDir + '/node_modules/bootstrap-material-design'));
@@ -17,7 +17,11 @@ function activateRoutes(app,express) {
     });
 //routes
     app.get('/', (req, res) => {
-        res.sendFile(appDir + '/views/index.html');
+        let userdata = req.session.userdata;
+        req.session.regenerate((err)=> {
+            req.session.userdata = userdata;
+            res.sendFile(appDir + '/views/index.html');
+        });
     });
 }
 

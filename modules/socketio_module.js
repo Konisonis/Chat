@@ -59,7 +59,10 @@ function activateSockets(io) {
 
     //Socket.io
     io.on('connection', (socket) => {
+        //check session
         let data = socket.handshake.session.userdata;
+        console.log('Socket connection',data);
+
         if (data) {
             let image = data.image ? new Buffer(data.image.data, 'base64') : undefined;
             socket.emit('chat dispatch', {success: true, image: image}, data.username);
@@ -130,7 +133,6 @@ function activateSockets(io) {
 
                             socket.handshake.session.userdata = {
                                 username: username,
-                                password: password,
                                 image: socket.image
                             };
                             socket.handshake.session.save();
@@ -258,7 +260,6 @@ function activateSockets(io) {
                 removeUser(socket);
                 delete socket.handshake.session.userdata;
                 socket.handshake.session.save();
-
                 let data = JSON.stringify({name: socket.user});
                 socket.user = undefined;
                 pub.publish('user disconnected', data);

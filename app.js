@@ -8,22 +8,21 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const cookieParser = require('cookie-parser');
 const sharedsession = require("express-socket.io-session");
 
 //Own modules
 const security = require('./modules/security_module');
 const routes = require('./modules/routes_module');
 const sockets = require('./modules/socketio_module');
-const redisModule = require('./modules/redis_module');
+const redis = require('./modules/redis_module');
 
 
 
 //activate to recognize active session
-io.use(sharedsession(redisModule.session));
+io.use(sharedsession(redis.session));
 
 //Set cookie for session affinity
-app.use(redisModule.session);
+app.use(redis.session);
 
 //initialize sockets
 sockets.activateSockets(io);

@@ -5,7 +5,38 @@
 * */
 
 $(() => {
-    const socket = io();
+    const socket = io('/', {
+        reconnection: false
+    });
+
+    let intervalID;
+    let reconnectCount = 0;
+
+
+    socket.on('disconnect', function () {
+        reconnectCount = 0;
+        console.log('disconnect');
+
+        //Retry reconnecting every 4 seconds
+        intervalID = setInterval(tryReconnect, 4000);
+    });
+    //Implementation of own reconnection strategy
+    let tryReconnect = function () {
+        ++reconnectCount;
+        if (reconnectCount == 7) {
+            clearInterval(intervalID);
+        }
+        console.log('Making a dummy http call to set jsessionid (before we do socket.io reconnect)');
+        $.ajax({
+            type: 'GET',
+            url: '/',
+            success:  ()=> {
+                console.log("http request succeeded");
+                //reconnect the socket AFTER we got jsessionid set
+                socket.connect();
+                clearInterval(intervalID);
+            }});
+    };
 
     let homeChat = [];
     let userList = {};
@@ -14,11 +45,11 @@ $(() => {
 
     //Log in with user name
     $('#loginForm').submit(() => {
-            socket.emit('login', $('#login-user').val(),$('#login-password').val(), (status) => {
-                    if(status.success){
-                        $('#login-modal').modal('toggle');
-                    }
-                    handleLogin(status,$('#login-user').val());
+            socket.emit('login', $('#login-user').val(), $('#login-password').val(), (status) => {
+                if (status.success) {
+                    $('#login-modal').modal('toggle');
+                }
+                handleLogin(status, $('#login-user').val());
             });
             return false;
         }
@@ -39,7 +70,7 @@ $(() => {
     });
 
 
-    $('#register-password, #register-confirm-password').on('keyup', ()=> {
+    $('#register-password, #register-confirm-password').on('keyup', () => {
         if ($('#register-password').val() == $('#register-confirm-password').val()) {
             $('#message').html('Matching').css('color', 'green');
         } else {
@@ -48,25 +79,25 @@ $(() => {
     });
 
     //Registration
-    $('#registerForm').submit((event)=>{
+    $('#registerForm').submit((event) => {
         event.preventDefault();
 
         let user = $('#register-user').val();
         let password = $('#register-password').val();
         let confirmPassword = $('#register-confirm-password').val();
 
-        if(password === confirmPassword){
-            socket.emit('registration',user, password, (success, statusMessage)=>{
-                if(success){
+        if (password === confirmPassword) {
+            socket.emit('registration', user, password, (success, statusMessage) => {
+                if (success) {
                     //auto login
-                    socket.emit('login',user,password,(status)=>{
-                        if(status.success){
+                    socket.emit('login', user, password, (status) => {
+                        if (status.success) {
                             $('#register-modal').modal('toggle');
                         }
-                    handleLogin(status,user);
+                        handleLogin(status, user);
                     });
                 }
-                else if(statusMessage){
+                else if (statusMessage) {
                     $('#register-error').text(statusMessage);
                     $('#register-error').show();
 
@@ -83,11 +114,11 @@ $(() => {
         if (file) {
             let stream = ss.createStream();
             // upload
-                ss(socket).emit('profile picture', stream, {
-                    name: file.name,
-                    size: file.size,
-                    type: file.type
-                });
+            ss(socket).emit('profile picture', stream, {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
             let blobStream = ss.createBlobReadStream(file);
             blobStream.pipe(stream);
         }
@@ -95,12 +126,12 @@ $(() => {
     });
 
     //notification if profile pic meets expectencies
-    socket.on('picture with face',(hasFace)=>{
-        if(hasFace){
+    socket.on('picture with face', (hasFace) => {
+        if (hasFace) {
             $('#invalidPicture').hide();
 
             $('#validPicture').show();
-        }else{
+        } else {
             $('#validPicture').hide();
             $('#invalidPicture').show();
         }
@@ -140,22 +171,22 @@ $(() => {
 
 
     //Receiving a message
-    socket.on('chat message', (messageObj = {timeStamp, sender, message,mood}) => {
+    socket.on('chat message', (messageObj = {timeStamp, sender, message, mood}) => {
         homeChat.push(messageObj);
         appendMessageToChat(messageObj);
     });
 
 
     //session is active and user can chat without login
-    socket.on('chat dispatch',(status,username)=>{
-        if(!$('#yourName').text()){
-            handleLogin(status,username);
+    socket.on('chat dispatch', (status, username) => {
+        if (!$('#yourName').text()) {
+            handleLogin(status, username);
         }
 
     });
 
     //receiving a private message
-    socket.on('private message', (messageObj = {timeStamp, sender, receiver, message,mood}) => {
+    socket.on('private message', (messageObj = {timeStamp, sender, receiver, message, mood}) => {
 
         let senderChatIsOpen = privateChatUser === messageObj.sender;
         let ownMessageAndChatIsOpen = privateChatUser === messageObj.receiver;
@@ -165,14 +196,14 @@ $(() => {
         //Check wether i'm the sender or the receiver
         if (userList[user]) {
             userList[user].messages.push(messageObj);
-        } else{
+        } else {
             user = messageObj.receiver;
             userList[user].messages.push(messageObj);
         }
         //print message if chat is open
         if (senderChatIsOpen || ownMessageAndChatIsOpen) {
             appendMessageToChat(messageObj);
-        }else{
+        } else {
             showNewMessageIcon(user);
         }
     });
@@ -230,14 +261,14 @@ $(() => {
             //Check wether i'm the sender or the receiver
             if (userList[user]) {
                 userList[user].messages.push(fileObject);
-            } else{
+            } else {
                 user = fileObject.receiver;
                 userList[user].messages.push(fileObject);
             }
             //print message if chat is open
             if (senderChatIsOpen || ownMessageAndChatIsOpen) {
                 appendMessageToChat(fileObject);
-            }else{
+            } else {
                 showNewMessageIcon(user);
             }
 
@@ -255,14 +286,13 @@ $(() => {
 
     //Trigger thr profile picture chooser
     $('#profilePicTrigger').click(() => {
-       // $('.progress-bar').css('width', 0 + '%');
+        // $('.progress-bar').css('width', 0 + '%');
         // $('.progress-bar').addClass('progress-bar-striped progress-bar-animated');
-       // $('#uploadFinished').hide();
+        // $('#uploadFinished').hide();
         $('#validPicture').hide();
         $('#invalidPicture').hide();
         $('#profile-pic').click();
     });
-
 
 
     //Selecting a private chat
@@ -292,22 +322,20 @@ $(() => {
         });
     });
 
-    $('#logout').click(()=>{
+    $('#logout').click(() => {
 
         //reset all data
         socket.emit('logout');
         $('#chat').hide();
         $('#front-page').show();
         $('#yourName').text('');
-        $('#profile-picture').attr("src",'');
+        $('#profile-picture').attr("src", '');
 
         $('#messages').empty();
 
-         homeChat = [];
-         userList = {};
+        homeChat = [];
+        userList = {};
     });
-
-
 
 
     //Adds a message to the chat
@@ -328,24 +356,24 @@ $(() => {
     //detects whether the message is a file or text
     function selectTypeOfMessage(messageObj, chatType) {
         if (messageObj.message) {
-            createMessageHtml(messageObj, chatType,'<div class="message">' + messageObj.message + '</div>')
+            createMessageHtml(messageObj, chatType, '<div class="message">' + messageObj.message + '</div>')
         }
         else if (messageObj.type.toString().includes("image/")) {
-            createMessageHtml(messageObj, chatType,'<div><img alt="' + messageObj.fileName + '" id="picture" src="' + messageObj.fileURL + '" ></div>');
+            createMessageHtml(messageObj, chatType, '<div><img alt="' + messageObj.fileName + '" id="picture" src="' + messageObj.fileURL + '" ></div>');
         } else if (messageObj.fileURL) {
-            createMessageHtml(messageObj, chatType,'<div><a href="' + messageObj.fileURL + '" download="' + messageObj.fileName + '">' + messageObj.fileName + '</a></div>');
+            createMessageHtml(messageObj, chatType, '<div><a href="' + messageObj.fileURL + '" download="' + messageObj.fileName + '">' + messageObj.fileName + '</a></div>');
         }
     }
 
     //Creates a message html element with all information it needs
-    function createMessageHtml(messageObj, chatType,htmlTag) {
+    function createMessageHtml(messageObj, chatType, htmlTag) {
         let message = '';
         message += '<div class="' + chatType + '">';
         if (chatType !== "yourmessage") {
             message += '<div class="sender">' + messageObj.sender + '</div>';
         }
         message += htmlTag;
-        if(messageObj.mood){
+        if (messageObj.mood) {
             message += '<div class="mood">Mood :' + messageObj.mood + '</div><br>';
         }
         message += '<div class="timestamp">' + messageObj.timeStamp + '</div>';
@@ -360,14 +388,14 @@ $(() => {
         Object.entries(userList).forEach(([key, value]) => {  //key => username, value=> {user, messages, image}
             if (key !== $('#yourName').text()) {
                 let htmlString = '';
-                if(value.image){
-                    htmlString = '<li><image style="width:50px;height:50px;border-radius:50%;" src="data:image/png;base64,'+value.image+'"></image>\n';
-                }else{
-                    htmlString ='<li><i class="material-icons">face</i>\n'
+                if (value.image) {
+                    htmlString = '<li><image style="width:50px;height:50px;border-radius:50%;" src="data:image/png;base64,' + value.image + '"></image>\n';
+                } else {
+                    htmlString = '<li><i class="material-icons">face</i>\n'
                 }
                 htmlString += '<button type="button" class="userElement btn btn-primary" value="' + value.user + '">\n' +
                     '                    ' + value.user + '<span class="badge badge-light"></span>\n' +
-                    '                    <span class="sr-only"></span><i style="display:none;" title="'+value.user+'" class="material-icons newMessage">new_releases</i>\n' +
+                    '                    <span class="sr-only"></span><i style="display:none;" title="' + value.user + '" class="material-icons newMessage">new_releases</i>\n' +
                     '                </button></li>';
 
                 $('#users').append(htmlString);
@@ -375,25 +403,26 @@ $(() => {
 
         });
     }
+
     //Show the user that he received a new private message
-    function showNewMessageIcon(user){
-        if(privateChatUser !== user){
-            let element =$(".newMessage[title='"+user+"']");
+    function showNewMessageIcon(user) {
+        if (privateChatUser !== user) {
+            let element = $(".newMessage[title='" + user + "']");
             element.show();
 
         }
     }
 
-    function handleLogin(status,username) {
+    function handleLogin(status, username) {
         if (status.success) {
             $('#chat').show();
             $('#front-page').hide();
             $('#yourName').text(username);
 
             //If a profile picture is available
-            if(status.image){
+            if (status.image) {
                 let string = new TextDecoder("utf-8").decode(new Uint8Array(status.image));
-                $('#profile-picture').attr("src","data:image/png;base64,"+string);
+                $('#profile-picture').attr("src", "data:image/png;base64," + string);
             }
 
 
@@ -404,8 +433,8 @@ $(() => {
         }
     }
 
-    function hideNewMessageIcon(user){
-        let element =$(".newMessage[title='"+user+"']");
+    function hideNewMessageIcon(user) {
+        let element = $(".newMessage[title='" + user + "']");
         element.hide();
 
     }
@@ -416,11 +445,11 @@ $(() => {
 
         users.forEach((user) => {
             let image = '';
-            if(user.image){
+            if (user.image) {
                 image = new TextDecoder("utf-8").decode(new Uint8Array(user.image));
             }
             if ($('#yourName').text() !== user.name) {
-                userList[user.name] = {user: user.name, messages: [], image:image };
+                userList[user.name] = {user: user.name, messages: [], image: image};
             }
         });
 
@@ -429,11 +458,11 @@ $(() => {
 
     socket.on('user joined', (user) => {
         let image = '';
-        if(user.image){
+        if (user.image) {
             image = new TextDecoder("utf-8").decode(new Uint8Array(user.image));
-            console.log('Joined user has profile picture: '+user.name);
+            console.log('Joined user has profile picture: ' + user.name);
         }
-        userList[user.name] = {user: user.name, messages: [], image:image};
+        userList[user.name] = {user: user.name, messages: [], image: image};
         updateUsers();
     });
 
