@@ -470,5 +470,11 @@ $(() => {
         delete userList[user];  // Remove key from json object
         updateUsers();
     });
+
+
+
+    socket.on('instanceId', (id)=>{
+        console.log('You are on instance:',id);
+    });
 })
 ;

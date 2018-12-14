@@ -59,6 +59,12 @@ function activateSockets(io) {
 
     //Socket.io
     io.on('connection', (socket) => {
+
+        //On connection send instanceId
+        if(process.env.CF_INSTANCE_INDEX){
+            socket.emit('instanceId',process.env.CF_INSTANCE_INDEX);
+        }
+
         //check session
         let data = socket.handshake.session.userdata;
 
