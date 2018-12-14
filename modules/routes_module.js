@@ -16,15 +16,16 @@ function activateRoutes(app, express) {
         return res.sendFile(appDir + '/node_modules/material-icons/iconfont/material-icons.scss');
     });
 //routes
+
     app.get('/', (req, res) => {
         //renew session object for sticky sessions
-        /*
+
         let userdata = req.session.userdata;
         req.session.regenerate((err)=> {
             req.session.userdata = userdata;
-        });
-        */
             res.sendFile(appDir + '/views/index.html');
+        });
+
 
     });
 }
