@@ -157,9 +157,12 @@ function activateSockets(io) {
         //-------------------Handle disconnect
         //on client disconnect
         socket.on('disconnect', () => {
-            removeUser(socket);
-            let data = JSON.stringify({name: socket.user});
-            pub.publish('user disconnected', data);
+            if(socket.user){
+                removeUser(socket);
+                let data = JSON.stringify({name: socket.user});
+                pub.publish('user disconnected', data);
+            }
+
         });
 
         //-------------------Streaming files
