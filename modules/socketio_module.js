@@ -60,7 +60,7 @@ function activateSockets(io) {
     //Socket.io
     io.on('connection', (socket) => {
 
-        //On connection send instanceId
+        //On connection send instanceId only in production mode
         if(process.env.CF_INSTANCE_INDEX){
             socket.emit('instanceId',process.env.CF_INSTANCE_INDEX);
         }
@@ -298,7 +298,9 @@ function userDisconnects(user) {
 
 //notify clients that a new user has connected
 function userConnects(data) {
-    data.image = new Buffer(data.image.data, 'base64');
+    if(data.image){
+        data.image = new Buffer(data.image.data, 'base64');
+    }
     Object.entries(myConnectedUsers).forEach(([key, socket]) => { //key => username, value=> socket
         if (socket) {
             socket.emit('chat message', {timeStamp: new Date().toUTCString(), sender: data.name, message: 'CONNECTED'});

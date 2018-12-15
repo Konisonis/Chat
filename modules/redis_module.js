@@ -18,12 +18,13 @@ const session = expressSession({
     store:sessionStore,
     key: 'JSESSIONID', // use a sticky session to make sockets work
     secret: 'arbitrary-secret',
+    proxy: true,
     cookie: {
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-        secure: false
+        secure: true
     },
     saveUninitialized: true,
-    resave: true
+    resave: false
 });
 
 //Redis Pub client

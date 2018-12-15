@@ -20,11 +20,12 @@ function activateRoutes(app, express) {
     app.get('/', (req, res) => {
         //renew session object for sticky sessions
 
-        let userdata = req.session.userdata;
-        req.session.regenerate((err)=> {
-            req.session.userdata = userdata;
-            res.sendFile(appDir + '/views/index.html');
-        });
+        //let userdata = req.session.userdata;
+        //req.session.regenerate((err)=> {
+        //});
+
+        //req.session.userdata = {username:'Peter'};
+        res.sendFile(appDir + '/views/index.html');
 
 
     });

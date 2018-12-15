@@ -22,7 +22,9 @@ const redis = require('./modules/redis_module');
 io.use(sharedsession(redis.session));
 
 //Set cookie for session affinity
+app.set('trust proxy', 1);//Trust load balancer
 app.use(redis.session);
+
 
 //initialize sockets
 sockets.activateSockets(io);
