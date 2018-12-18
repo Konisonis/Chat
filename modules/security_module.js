@@ -1,5 +1,6 @@
 const csp = require('content-security-policy');
 const helmet = require("helmet");
+const enforce_ssl = require('express-enforces-ssl');
 
 
 // content-security-policy
@@ -15,6 +16,8 @@ const localCSP = csp.getCSP(cspPolicy);
 
 
 function secureApp(app){
+
+    app.use(enforce_ssl);
 
     app.use(helmet()); // Add Helmet as a middleware
     app.use(helmet.xssFilter())
